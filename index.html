@@ -3,56 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ToolMaster - Your Go-To Tool Hub</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>ToolBox - Online Tools for You</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+    header {
+      background-color: #007acc;
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+    }
+    nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .hero {
+      padding: 50px 20px;
+      background: #e9f5ff;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 1.2em;
+    }
+    .tools {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .tool {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 280px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .tool h3 {
+      margin-top: 0;
+    }
+    footer {
+      background-color: #007acc;
+      color: #fff;
+      text-align: center;
+      padding: 15px 0;
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <div class="container">
-      <h1 class="logo">ToolMaster</h1>
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Tools</a></li>
-          <li><a href="#">Pricing</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
+    <h1>ToolBox</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Tools</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
   </header>
 
   <section class="hero">
-    <div class="container">
-      <h2>Powerful Online Tools for Everyone</h2>
-      <p>Convert, compress, edit – all in one place, without installing anything.</p>
-      <a href="#tools" class="btn">Explore Tools</a>
-    </div>
+    <h1>All-in-One Online Tool Suite</h1>
+    <p>Use our free and easy tools to convert files, compress images, and more – all from your browser!</p>
   </section>
 
-  <section class="tools" id="tools">
-    <div class="container">
-      <h3>Popular Tools</h3>
-      <div class="tool-grid">
-        <div class="tool-card">
-          <h4>PDF Converter</h4>
-          <p>Convert documents to and from PDF format easily.</p>
-        </div>
-        <div class="tool-card">
-          <h4>Image Compressor</h4>
-          <p>Reduce image size without losing quality.</p>
-        </div>
-        <div class="tool-card">
-          <h4>Text Editor</h4>
-          <p>Edit your plain text or code snippets on the fly.</p>
-        </div>
-      </div>
+  <section class="tools">
+    <div class="tool">
+      <h3>PDF Converter</h3>
+      <p>Convert files to and from PDF easily.</p>
+    </div>
+    <div class="tool">
+      <h3>Image Compressor</h3>
+      <p>Reduce image size without losing quality.</p>
+    </div>
+    <div class="tool">
+      <h3>Text Editor</h3>
+      <p>Clean and format text instantly.</p>
+    </div>
+    <div class="tool">
+      <h3>File Merger</h3>
+      <p>Combine multiple files into one.</p>
     </div>
   </section>
 
   <footer>
-    <div class="container">
-      <p>&copy; 2025 ToolMaster. All rights reserved.</p>
-    </div>
+    <p>&copy; 2025 ToolBox. All rights reserved.</p>
   </footer>
+
 </body>
 </html>
