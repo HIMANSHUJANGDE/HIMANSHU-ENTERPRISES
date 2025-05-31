@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML to Image Tool</title>
+  <style>
+
+
+
+    body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  margin: 0;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.preview {
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+button, a {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 20px;
+}
+
+button:hover, a:hover {
+  background-color: #388e3c;
+}
+
+#downloadLink {
+  display: none;
+}
+
+#htmlContent {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  min-height: 200px;
+}
+
+
+
+
+    
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>HTML to Image Tool</h1>
+
+    <textarea id="htmlInput" placeholder="Enter HTML code here..." rows="10"></textarea>
+
+    <div id="preview" class="preview">
+      <h3>HTML Preview:</h3>
+      <div id="htmlContent"></div>
+    </div>
+
+    <button onclick="generateImage()">Convert to Image</button>
+    <a id="downloadLink" download="html-to-image.png">Download Image</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
