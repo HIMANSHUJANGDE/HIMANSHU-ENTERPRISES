@@ -1,101 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Remove Background Tool</title>
   <style>
-
-
-
     body {
-  font-family: Arial, sans-serif;
-  background: #f0f0f0;
-  padding: 20px;
-  text-align: center;
-}
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 40px;
+    }
 
-.container {
-  max-width: 600px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-}
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
 
-input[type="file"] {
-  margin: 20px 0;
-}
+    input[type="file"] {
+      margin-top: 20px;
+    }
 
-.image-preview {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-}
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
 
-.image-preview img {
-  max-width: 45%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
+    button:hover {
+      background-color: #45a049;
+    }
 
-    
+    .image-preview {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .image-preview img {
+      width: 45%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Remove Background Tool</h1>
-    <input type="file" id="imageUpload" accept="image/*" />
-    <button onclick="removeBackground()">Remove Background</button>
+    <input type="file" accept="image/*" disabled />
+    <br>
+    <button disabled>Remove Background</button>
+
     <div class="image-preview">
-      <img id="originalImage" src="" alt="Original" />
-      <img id="outputImage" src="" alt="Without Background" />
+      <div>
+        <h3>Original</h3>
+        <img src="https://via.placeholder.com/250" alt="Original Image">
+      </div>
+      <div>
+        <h3>Processed</h3>
+        <img src="https://via.placeholder.com/250?text=No+Background" alt="Output Image">
+      </div>
     </div>
   </div>
-  <script>
-
-
-
-
-    zlet selectedFile;
-
-document.getElementById("imageUpload").addEventListener("change", function (e) {
-  selectedFile = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    document.getElementById("originalImage").src = event.target.result;
-  };
-  reader.readAsDataURL(selectedFile);
-});
-
-function removeBackground() {
-  if (!selectedFile) {
-    alert("Please upload an image first.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image_file", selectedFile);
-  formData.append("size", "auto");
-
-  fetch("https://api.remove.bg/v1.0/removebg", {
-    method: "POST",
-    headers: {
-      "X-Api-Key": "YOUR_API_KEY_HERE" // Replace this
-    },
-    body: formData
-  })
-    .then(response => response.blob())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      document.getElementById("outputImage").src = url;
-    })
-    .catch(error => {
-      console.error("Error:", error);
-      alert("Failed to remove background. Make sure your API key is correct.");
-    });
-}
-
-  </script>
 </body>
 </html>
