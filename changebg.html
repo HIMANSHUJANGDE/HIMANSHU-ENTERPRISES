@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Background Changer</title>
+  <style>
+
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  text-align: center;
+  padding: 50px;
+}
+
+.container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.image-preview {
+  width: 300px;
+  height: 300px;
+  margin: 20px auto;
+  border: 2px dashed #ccc;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+
+
+
+
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image Background Changer</h1>
+    <input type="file" id="imageInput" accept="image/*">
+    <label for="bgColorPicker">Choose Background Color:</label>
+    <input type="color" id="bgColorPicker" value="#ffffff">
+    
+    <div class="image-preview" id="previewArea">
+      <img id="uploadedImage" src="" alt="Uploaded Image" style="display:none;">
+    </div>
+  </div>
+
+  <script>
+
+
+
+const imageInput = document.getElementById('imageInput');
+const uploadedImage = document.getElementById('uploadedImage');
+const previewArea = document.getElementById('previewArea');
+const bgColorPicker = document.getElementById('bgColorPicker');
+
+// Handle image upload
+imageInput.addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      uploadedImage.src = e.target.result;
+      uploadedImage.style.display = 'block';
+    };
+
+    reader.readAsDataURL(file);
+  }
+});
+
+// Change background color
+bgColorPicker.addEventListener('input', function () {
+  previewArea.style.backgroundColor = this.value;
+});
+
+
+
+
+    
+  </script>
+</body>
+</html>
