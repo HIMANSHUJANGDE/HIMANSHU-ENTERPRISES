@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Text Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .editor-container {
+            width: 80%;
+            max-width: 900px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar {
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        .toolbar button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+            padding: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .toolbar button:hover {
+            background-color: #444;
+        }
+
+        .editor {
+            min-height: 300px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 16px;
+            line-height: 1.5;
+            outline: none;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <div class="toolbar">
+            <button onclick="formatText('bold')"><b>B</b></button>
+            <button onclick="formatText('italic')"><i>I</i></button>
+            <button onclick="formatText('underline')"><u>U</u></button>
+            <button onclick="formatText('strikeThrough')"><strike>S</strike></button>
+        </div>
+        <div class="editor" contenteditable="true"></div>
+    </div>
+
+    <script>
+        // Function to apply the formatting commands
+        function formatText(command) {
+            document.execCommand(command, false, null);
+        }
+    </script>
+</body>
+</html>
