@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Text Editor with Kruti Dev & Raj Font Support</title>
+    <title>Advanced Hindi Text Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Global Styles */
         body {
@@ -67,17 +68,7 @@
             overflow-y: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
-        }
-
-        /* Kruti Dev and Raj Font Import */
-        @font-face {
-            font-family: 'Kruti Dev';
-            src: url('https://example.com/kruti-dev-font.ttf') format('truetype');
-        }
-
-        @font-face {
-            font-family: 'Raj';
-            src: url('https://example.com/raj-font.ttf') format('truetype');
+            font-family: 'Noto Sans Devanagari', sans-serif;
         }
     </style>
 </head>
@@ -107,14 +98,6 @@
             <!-- Font Color Picker -->
             <input type="color" onchange="changeFontColor(this.value)" title="Text Color">
 
-            <!-- Font Family Selector (Kruti Dev & Raj) -->
-            <select onchange="changeFontFamily(this.value)">
-                <option value="Roboto">Roboto</option>
-                <option value="Open Sans">Open Sans</option>
-                <option value="Kruti Dev">Kruti Dev</option>
-                <option value="Raj">Raj</option>
-            </select>
-
             <!-- Clear Content Button -->
             <button onclick="clearContent()">Clear</button>
         </div>
@@ -131,24 +114,12 @@
 
         // Function to change font size
         function changeFontSize(size) {
-            document.execCommand('fontSize', false, 4); // Apply the font size
             document.querySelector(".editor").style.fontSize = size;
         }
 
         // Function to change font color
         function changeFontColor(color) {
             document.execCommand('foreColor', false, color);
-        }
-
-        // Function to change font family (including Kruti Dev & Raj)
-        function changeFontFamily(font) {
-            if (font === 'Kruti Dev') {
-                document.querySelector(".editor").style.fontFamily = 'Kruti Dev, sans-serif';
-            } else if (font === 'Raj') {
-                document.querySelector(".editor").style.fontFamily = 'Raj, sans-serif';
-            } else {
-                document.querySelector(".editor").style.fontFamily = font;
-            }
         }
 
         // Function to clear the content in the editor
