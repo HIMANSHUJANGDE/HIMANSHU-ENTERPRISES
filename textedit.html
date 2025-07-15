@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Text Editor - All Font Support</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Amiri:wght@400;700&family=Courier+New&family=Georgia&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <title>Advanced Text Editor - Hindi & English Fonts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Indie+Flower&family=Amiri&family=Mangal&family=Lora&display=swap" rel="stylesheet">
     <style>
         /* Global Styles */
         body {
@@ -97,16 +97,15 @@
             <!-- Font Color Picker -->
             <input type="color" onchange="changeFontColor(this.value)" title="Text Color">
 
-            <!-- Font Family Selector -->
+            <!-- Font Family Selector (Hindi and English) -->
             <select onchange="changeFontFamily(this.value)">
                 <option value="Roboto">Roboto</option>
                 <option value="Open Sans">Open Sans</option>
-                <option value="Ubuntu">Ubuntu</option>
+                <option value="Indie Flower">Indie Flower</option>
+                <option value="Lora">Lora</option>
+                <option value="Mangal">Mangal</option>
                 <option value="Noto Sans Devanagari">Noto Sans Devanagari (Hindi)</option>
                 <option value="Amiri">Amiri (Arabic)</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
             </select>
 
             <!-- Clear Content Button -->
@@ -134,7 +133,7 @@
             document.execCommand('foreColor', false, color);
         }
 
-        // Function to change font family
+        // Function to change font family (Hindi/English)
         function changeFontFamily(font) {
             document.querySelector(".editor").style.fontFamily = font;
         }
