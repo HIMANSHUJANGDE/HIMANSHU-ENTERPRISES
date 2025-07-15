@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Text Editor with Kruti Dev Support</title>
+    <title>Advanced Text Editor with Kruti Dev & Raj Font Support</title>
     <style>
         /* Global Styles */
         body {
@@ -69,10 +69,15 @@
             word-wrap: break-word;
         }
 
-        /* Kruti Dev Font Import */
+        /* Kruti Dev and Raj Font Import */
         @font-face {
             font-family: 'Kruti Dev';
             src: url('https://example.com/kruti-dev-font.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Raj';
+            src: url('https://example.com/raj-font.ttf') format('truetype');
         }
     </style>
 </head>
@@ -102,11 +107,12 @@
             <!-- Font Color Picker -->
             <input type="color" onchange="changeFontColor(this.value)" title="Text Color">
 
-            <!-- Font Family Selector (Hindi and English) -->
+            <!-- Font Family Selector (Kruti Dev & Raj) -->
             <select onchange="changeFontFamily(this.value)">
                 <option value="Roboto">Roboto</option>
                 <option value="Open Sans">Open Sans</option>
                 <option value="Kruti Dev">Kruti Dev</option>
+                <option value="Raj">Raj</option>
             </select>
 
             <!-- Clear Content Button -->
@@ -134,10 +140,12 @@
             document.execCommand('foreColor', false, color);
         }
 
-        // Function to change font family (including Kruti Dev)
+        // Function to change font family (including Kruti Dev & Raj)
         function changeFontFamily(font) {
             if (font === 'Kruti Dev') {
                 document.querySelector(".editor").style.fontFamily = 'Kruti Dev, sans-serif';
+            } else if (font === 'Raj') {
+                document.querySelector(".editor").style.fontFamily = 'Raj, sans-serif';
             } else {
                 document.querySelector(".editor").style.fontFamily = font;
             }
