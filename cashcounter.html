@@ -1,75 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cash Counter with Empty Inputs</title>
-  <style>
-    /* ... your CSS styles here (optional) ... */
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Indian Rupees Cash Counter</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9f9f9;
+    padding: 20px;
+    max-width: 500px;
+    margin: auto;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  .instructions {
+    background: #e7f3ff;
+    border: 1px solid #a3d0ff;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    color: #0366d6;
+    font-weight: 600;
+    text-align: center;
+  }
+  .cash-counter {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px #ccc;
+  }
+  label {
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0;
+    font-weight: 600;
+  }
+  input[type="number"] {
+    width: 80px;
+    padding: 6px 8px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+  }
+  .total {
+    margin-top: 25px;
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+    color: #007bff;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #0056b3;
+  }
+</style>
 </head>
 <body>
 
+<h1>Indian Rupees Cash Counter</h1>
+
+<div class="instructions">
+  Enter the quantity of each denomination you have.<br/>
+  The total updates live below.<br/>
+  Click <strong>Clear</strong> to reset all inputs.
+</div>
+
+<div class="cash-counter">
   <form id="cashForm">
-    <label for="note500">₹500:</label>
-    <input type="number" id="note500" min="0" value="">
+    <label>
+      ₹2000 notes:
+      <input type="number" min="0" value="" data-value="2000" />
+    </label>
+    <label>
+      ₹500 notes:
+      <input type="number" min="0" value="" data-value="500" />
+    </label>
+    <label>
+      ₹200 notes:
+      <input type="number" min="0" value="" data-value="200" />
+    </label>
+    <label>
+      ₹100 notes:
+      <input type="number" min="0" value="" data-value="100" />
+    </label>
+    <label>
+      ₹50 notes:
+      <input type="number" min="0" value="" data-value="50" />
+    </label>
+    <label>
+      ₹20 notes:
+      <input type="number" min="0" value="" data-value="20" />
+    </label>
+    <label>
+      ₹10 notes:
+      <input type="number" min="0" value="" data-value="10" />
+    </label>
+    <label>
+      ₹5 coins:
+      <input type="number" min="0" value="" data-value="5" />
+    </label>
+    <label>
+      ₹2 coins:
+      <input type="number" min="0" value="" data-value="2" />
+    </label>
+    <label>
+      ₹1 coins:
+      <input type="number" min="0" value="" data-value="1" />
+    </label>
 
-    <label for="note200">₹200:</label>
-    <input type="number" id="note200" min="0" value="">
+    <div class="total" id="totalAmount">
+      Total: ₹0
+    </div>
 
-    <label for="note100">₹100:</label>
-    <input type="number" id="note100" min="0" value="">
-
-    <label for="note50">₹50:</label>
-    <input type="number" id="note50" min="0" value="">
-
-    <label for="note20">₹20:</label>
-    <input type="number" id="note20" min="0" value="">
-
-    <label for="note10">₹10:</label>
-    <input type="number" id="note10" min="0" value="">
-
-    <label for="coin5">₹5:</label>
-    <input type="number" id="coin5" min="0" value="">
-
-    <label for="coin2">₹2:</label>
-    <input type="number" id="coin2" min="0" value="">
-
-    <label for="coin1">₹1:</label>
-    <input type="number" id="coin1" min="0" value="">
+    <button type="button" id="clearBtn">Clear</button>
   </form>
+</div>
 
-  <div id="totalAmount">Total: ₹0</div>
+<script>
+  const inputs = document.querySelectorAll('input[type="number"]');
+  const totalAmount = document.getElementById('totalAmount');
+  const clearBtn = document.getElementById('clearBtn');
 
-  <script>
-    const denominations = {
-      note500: 500,
-      note200: 200,
-      note100: 100,
-      note50:  50,
-      note20:  20,
-      note10:  10,
-      coin5:   5,
-      coin2:   2,
-      coin1:   1
-    };
-
-    function calculateTotal() {
-      let total = 0;
-      for (const id in denominations) {
-        const val = document.getElementById(id).value;
-        const count = parseInt(val) || 0; // empty or invalid = 0
-        total += count * denominations[id];
-      }
-      document.getElementById('totalAmount').innerText = `Total: ₹${total}`;
-    }
-
-    document.querySelectorAll('#cashForm input[type="number"]').forEach(input => {
-      input.addEventListener('input', calculateTotal);
+  function calculateTotal() {
+    let total = 0;
+    inputs.forEach(input => {
+      const count = parseInt(input.value) || 0;
+      const value = parseInt(input.getAttribute('data-value'));
+      total += count * value;
     });
+    totalAmount.textContent = `Total: ₹${total.toLocaleString('en-IN')}`;
+  }
 
-    // Initialize total on page load
+  inputs.forEach(input => {
+    input.addEventListener('input', calculateTotal);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    inputs.forEach(input => {
+      input.value = '';
+    });
     calculateTotal();
-  </script>
+  });
+
+  calculateTotal();
+</script>
 
 </body>
 </html>
