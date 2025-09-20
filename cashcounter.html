@@ -1,24 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cash Counter (No ₹2000)</title>
+  <meta charset="UTF-8">
+  <title>Cash Counter (Auto, No ₹2000)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
+      background: #f3f3f3;
       padding: 20px;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     h2 {
@@ -26,125 +15,90 @@
       color: #333;
     }
 
-    .note-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .note-row label {
+    label {
+      display: block;
+      margin-top: 10px;
       font-weight: bold;
     }
 
-    .note-row input {
-      width: 80px;
-      padding: 5px;
-      font-size: 1rem;
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
 
     .result {
       margin-top: 20px;
-      font-size: 1.2rem;
+      font-size: 18px;
+      font-weight: bold;
       text-align: center;
-      color: #444;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      margin-top: 15px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .btn:hover {
-      background-color: #45a049;
+      color: #333;
     }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <h2>Cash Counter (₹2000 Excluded)</h2>
-
-    <div class="note-row">
-      <label for="note500">₹500:</label>
+    <h2>Cash Counter (No ₹2000 Notes)</h2>
+    <form id="cashForm">
+      <label for="note500">₹500 Notes:</label>
       <input type="number" id="note500" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note200">₹200:</label>
+
+      <label for="note200">₹200 Notes:</label>
       <input type="number" id="note200" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note100">₹100:</label>
+
+      <label for="note100">₹100 Notes:</label>
       <input type="number" id="note100" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note50">₹50:</label>
+
+      <label for="note50">₹50 Notes:</label>
       <input type="number" id="note50" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note20">₹20:</label>
+
+      <label for="note20">₹20 Notes:</label>
       <input type="number" id="note20" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note10">₹10:</label>
+
+      <label for="note10">₹10 Notes:</label>
       <input type="number" id="note10" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note5">₹5:</label>
-      <input type="number" id="note5" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note2">₹2:</label>
-      <input type="number" id="note2" min="0" value="0">
-    </div>
-    <div class="note-row">
-      <label for="note1">₹1:</label>
-      <input type="number" id="note1" min="0" value="0">
-    </div>
 
-    <button class="btn" onclick="calculateTotal()">Calculate Total</button>
-
-    <div class="result" id="result">
-      Total Notes: 0<br>
-      Total Amount: ₹0
-    </div>
+      <div class="result" id="totalAmount">Total: ₹0</div>
+    </form>
   </div>
 
   <script>
+    // Function to calculate total
     function calculateTotal() {
-      const denominations = {
-        note500: 500,
-        note200: 200,
-        note100: 100,
-        note50: 50,
-        note20: 20,
-        note10: 10,
-        note5: 5,
-        note2: 2,
-        note1: 1
-      };
+      const getValue = id => parseInt(document.getElementById(id).value) || 0;
 
-      let totalNotes = 0;
-      let totalAmount = 0;
+      const total = 
+        getValue('note500') * 500 +
+        getValue('note200') * 200 +
+        getValue('note100') * 100 +
+        getValue('note50')  * 50 +
+        getValue('note20')  * 20 +
+        getValue('note10')  * 10;
 
-      for (let id in denominations) {
-        const count = parseInt(document.getElementById(id).value) || 0;
-        totalNotes += count;
-        totalAmount += count * denominations[id];
-      }
-
-      document.getElementById("result").innerHTML = `
-        Total Notes: ${totalNotes}<br>
-        Total Amount: ₹${totalAmount.toLocaleString()}
-      `;
+      document.getElementById('totalAmount').innerText = `Total: ₹${total.toLocaleString('en-IN')}`;
     }
+
+    // Add input event listeners to all note fields
+    document.querySelectorAll('#cashForm input[type="number"]').forEach(input => {
+      input.addEventListener('input', calculateTotal);
+    });
+
+    // Initial calculation on page load
+    calculateTotal();
   </script>
+
 </body>
 </html>
