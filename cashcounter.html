@@ -44,12 +44,17 @@
     border: 1px solid #aaa;
     border-radius: 4px;
   }
-  .total {
-    margin-top: 25px;
-    font-size: 1.5rem;
+  .total, .count {
+    margin-top: 20px;
+    font-size: 1.3rem;
     text-align: center;
     font-weight: bold;
+  }
+  .total {
     color: #007bff;
+  }
+  .count {
+    color: #28a745;
   }
   button {
     margin-top: 20px;
@@ -73,7 +78,7 @@
 
 <div class="instructions">
   Enter the quantity of each denomination you have.<br/>
-  The total updates live below.<br/>
+  The total and count update live below.<br/>
   Click <strong>Clear</strong> to reset all inputs.
 </div>
 
@@ -119,6 +124,9 @@
     <div class="total" id="totalAmount">
       Total: ₹0
     </div>
+    <div class="count" id="countNotes">
+      Count of notes/coins: 0
+    </div>
 
     <button type="button" id="clearBtn">Clear</button>
   </form>
@@ -127,16 +135,20 @@
 <script>
   const inputs = document.querySelectorAll('input[type="number"]');
   const totalAmount = document.getElementById('totalAmount');
+  const countNotes = document.getElementById('countNotes');
   const clearBtn = document.getElementById('clearBtn');
 
   function calculateTotal() {
     let total = 0;
+    let count = 0;
     inputs.forEach(input => {
-      const count = parseInt(input.value) || 0;
+      const countVal = parseInt(input.value) || 0;
       const value = parseInt(input.getAttribute('data-value'));
-      total += count * value;
+      total += countVal * value;
+      count += countVal;
     });
     totalAmount.textContent = `Total: ₹${total.toLocaleString('en-IN')}`;
+    countNotes.textContent = `Count of notes/coins: ${count}`;
   }
 
   inputs.forEach(input => {
