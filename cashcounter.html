@@ -3,139 +3,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cash Counter (AIO)</title>
+  <title>Cash Counter (No ₹2000)</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f4;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
       margin: 0;
       padding: 20px;
     }
-    h1 {
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
       text-align: center;
       color: #333;
     }
-    .cash-counter {
-      max-width: 500px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .denomination {
+
+    .note-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
+      align-items: center;
+      margin: 10px 0;
     }
-    .denomination label {
+
+    .note-row label {
       font-weight: bold;
-      width: 100px;
     }
-    .denomination input {
-      width: 100px;
+
+    .note-row input {
+      width: 80px;
       padding: 5px;
-      font-size: 16px;
+      font-size: 1rem;
     }
+
     .result {
       margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #ccc;
-    }
-    .result p {
-      font-size: 18px;
-      margin: 5px 0;
-    }
-    .footer {
+      font-size: 1.2rem;
       text-align: center;
-      margin-top: 30px;
-      font-size: 13px;
-      color: #666;
+      color: #444;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      margin-top: 15px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Cash Counter (₹2000 Excluded)</h2>
 
-  <h1>🧮 AIO Cash Counter</h1>
-  <div class="cash-counter">
-
-    <div class="denomination">
+    <div class="note-row">
       <label for="note500">₹500:</label>
-      <input type="number" id="note500" value="0" min="0">
+      <input type="number" id="note500" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note200">₹200:</label>
-      <input type="number" id="note200" value="0" min="0">
+      <input type="number" id="note200" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note100">₹100:</label>
-      <input type="number" id="note100" value="0" min="0">
+      <input type="number" id="note100" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note50">₹50:</label>
-      <input type="number" id="note50" value="0" min="0">
+      <input type="number" id="note50" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note20">₹20:</label>
-      <input type="number" id="note20" value="0" min="0">
+      <input type="number" id="note20" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note10">₹10:</label>
-      <input type="number" id="note10" value="0" min="0">
+      <input type="number" id="note10" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note5">₹5:</label>
-      <input type="number" id="note5" value="0" min="0">
+      <input type="number" id="note5" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note2">₹2:</label>
-      <input type="number" id="note2" value="0" min="0">
+      <input type="number" id="note2" min="0" value="0">
     </div>
-    <div class="denomination">
+    <div class="note-row">
       <label for="note1">₹1:</label>
-      <input type="number" id="note1" value="0" min="0">
+      <input type="number" id="note1" min="0" value="0">
     </div>
 
-    <div class="result">
-      <p><strong>Total Notes:</strong> <span id="totalNotes">0</span></p>
-      <p><strong>Total Amount:</strong> ₹<span id="totalAmount">0</span></p>
+    <button class="btn" onclick="calculateTotal()">Calculate Total</button>
+
+    <div class="result" id="result">
+      Total Notes: 0<br>
+      Total Amount: ₹0
     </div>
   </div>
 
-  <div class="footer">Made with ❤️ using HTML, CSS & JS</div>
-
   <script>
-    const denominations = [
-      { id: 'note500', value: 500 },
-      { id: 'note200', value: 200 },
-      { id: 'note100', value: 100 },
-      { id: 'note50', value: 50 },
-      { id: 'note20', value: 20 },
-      { id: 'note10', value: 10 },
-      { id: 'note5', value: 5 },
-      { id: 'note2', value: 2 },
-      { id: 'note1', value: 1 }
-    ];
-
-    const totalNotesEl = document.getElementById('totalNotes');
-    const totalAmountEl = document.getElementById('totalAmount');
-
-    denominations.forEach(denom => {
-      document.getElementById(denom.id).addEventListener('input', calculateTotal);
-    });
-
     function calculateTotal() {
+      const denominations = {
+        note500: 500,
+        note200: 200,
+        note100: 100,
+        note50: 50,
+        note20: 20,
+        note10: 10,
+        note5: 5,
+        note2: 2,
+        note1: 1
+      };
+
       let totalNotes = 0;
       let totalAmount = 0;
 
-      denominations.forEach(denom => {
-        const qty = parseInt(document.getElementById(denom.id).value) || 0;
-        totalNotes += qty;
-        totalAmount += qty * denom.value;
-      });
+      for (let id in denominations) {
+        const count = parseInt(document.getElementById(id).value) || 0;
+        totalNotes += count;
+        totalAmount += count * denominations[id];
+      }
 
-      totalNotesEl.textContent = totalNotes;
-      totalAmountEl.textContent = totalAmount;
+      document.getElementById("result").innerHTML = `
+        Total Notes: ${totalNotes}<br>
+        Total Amount: ₹${totalAmount.toLocaleString()}
+      `;
     }
   </script>
 </body>
