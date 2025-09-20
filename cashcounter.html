@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cash Counter</title>
+<title>Indian Rupees Cash Counter</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -70,6 +70,12 @@
   button:hover {
     background: #0056b3;
   }
+  /* Hide buttons when printing */
+  @media print {
+    button {
+      display: none;
+    }
+  }
 </style>
 </head>
 <body>
@@ -79,7 +85,8 @@
 <div class="instructions">
   Enter the quantity of each denomination you have.<br/>
   The total and count update live below.<br/>
-  Click <strong>Clear</strong> to reset all inputs.
+  Click <strong>Clear</strong> to reset all inputs.<br/>
+  Click <strong>Print</strong> to print this page.
 </div>
 
 <div class="cash-counter">
@@ -129,6 +136,7 @@
     </div>
 
     <button type="button" id="clearBtn">Clear</button>
+    <button type="button" id="printBtn">Print</button>
   </form>
 </div>
 
@@ -137,6 +145,7 @@
   const totalAmount = document.getElementById('totalAmount');
   const countNotes = document.getElementById('countNotes');
   const clearBtn = document.getElementById('clearBtn');
+  const printBtn = document.getElementById('printBtn');
 
   function calculateTotal() {
     let total = 0;
@@ -160,6 +169,10 @@
       input.value = '';
     });
     calculateTotal();
+  });
+
+  printBtn.addEventListener('click', () => {
+    window.print();
   });
 
   calculateTotal();
