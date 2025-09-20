@@ -1,149 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cash Counter (Live + Print)</title>
+  <meta charset="UTF-8" />
+  <title>Cash Counter with Empty Inputs</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #e0f7fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 20px;
-      background: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #00796b;
-    }
-
-    .section-title {
-      margin-top: 20px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #555;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-
-    label {
-      display: block;
-      margin-top: 12px;
-      font-weight: 600;
-    }
-
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .result {
-      margin-top: 25px;
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      color: #004d40;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    button {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .reset-btn {
-      background-color: #f44336;
-      color: white;
-    }
-
-    .print-btn {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    /* Hide buttons on print */
-    @media print {
-      .buttons, input {
-        display: none !important;
-      }
-      .app {
-        box-shadow: none;
-        padding: 0;
-      }
-      body {
-        background: white;
-      }
-    }
+    /* ... your CSS styles here (optional) ... */
   </style>
 </head>
 <body>
 
-  <div class="app">
-    <h2>Cash Counter (Live + Print)</h2>
+  <form id="cashForm">
+    <label for="note500">₹500:</label>
+    <input type="number" id="note500" min="0" value="">
 
-    <form id="cashForm">
-      <div class="section-title">Notes</div>
-      <label for="note500">₹500:</label>
-      <input type="number" id="note500" min="0" value="0">
+    <label for="note200">₹200:</label>
+    <input type="number" id="note200" min="0" value="">
 
-      <label for="note200">₹200:</label>
-      <input type="number" id="note200" min="0" value="0">
+    <label for="note100">₹100:</label>
+    <input type="number" id="note100" min="0" value="">
 
-      <label for="note100">₹100:</label>
-      <input type="number" id="note100" min="0" value="0">
+    <label for="note50">₹50:</label>
+    <input type="number" id="note50" min="0" value="">
 
-      <label for="note50">₹50:</label>
-      <input type="number" id="note50" min="0" value="0">
+    <label for="note20">₹20:</label>
+    <input type="number" id="note20" min="0" value="">
 
-      <label for="note20">₹20:</label>
-      <input type="number" id="note20" min="0" value="0">
+    <label for="note10">₹10:</label>
+    <input type="number" id="note10" min="0" value="">
 
-      <label for="note10">₹10:</label>
-      <input type="number" id="note10" min="0" value="0">
+    <label for="coin5">₹5:</label>
+    <input type="number" id="coin5" min="0" value="">
 
-      <div class="section-title">Coins</div>
-      <label for="coin5">₹5:</label>
-      <input type="number" id="coin5" min="0" value="0">
+    <label for="coin2">₹2:</label>
+    <input type="number" id="coin2" min="0" value="">
 
-      <label for="coin2">₹2:</label>
-      <input type="number" id="coin2" min="0" value="0">
+    <label for="coin1">₹1:</label>
+    <input type="number" id="coin1" min="0" value="">
+  </form>
 
-      <label for="coin1">₹1:</label>
-      <input type="number" id="coin1" min="0" value="0">
-    </form>
-
-    <div class="result" id="totalAmount">Total: ₹0</div>
-
-    <div class="buttons">
-      <button class="reset-btn" onclick="resetForm()">Reset</button>
-      <button class="print-btn" onclick="window.print()">Print</button>
-    </div>
-  </div>
+  <div id="totalAmount">Total: ₹0</div>
 
   <script>
     const denominations = {
@@ -153,37 +48,27 @@
       note50:  50,
       note20:  20,
       note10:  10,
-      coin5:    5,
-      coin2:    2,
-      coin1:    1
+      coin5:   5,
+      coin2:   2,
+      coin1:   1
     };
 
     function calculateTotal() {
       let total = 0;
-
       for (const id in denominations) {
-        const count = parseInt(document.getElementById(id).value) || 0;
+        const val = document.getElementById(id).value;
+        const count = parseInt(val) || 0; // empty or invalid = 0
         total += count * denominations[id];
       }
-
-      document.getElementById('totalAmount').innerText = `Total: ₹${total.toLocaleString('en-IN')}`;
+      document.getElementById('totalAmount').innerText = `Total: ₹${total}`;
     }
 
-    // Auto-calculate on every input
     document.querySelectorAll('#cashForm input[type="number"]').forEach(input => {
       input.addEventListener('input', calculateTotal);
     });
 
-    // Initial total
+    // Initialize total on page load
     calculateTotal();
-
-    // Reset form and total
-    function resetForm() {
-      document.querySelectorAll('#cashForm input[type="number"]').forEach(input => {
-        input.value = 0;
-      });
-      calculateTotal();
-    }
   </script>
 
 </body>
