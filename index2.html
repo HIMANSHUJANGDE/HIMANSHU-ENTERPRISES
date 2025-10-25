@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIO Tools - All in One Toolkit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2e0a5a36a.js" crossorigin="anonymous"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+    :root {
+      --bg: #f9f9f9;
+      --text: #333;
+      --accent: #0077ff;
+      --card-bg: #fff;
+    }
+    .dark {
+      --bg: #121212;
+      --text: #f1f1f1;
+      --card-bg: #1e1e1e;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--card-bg);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .logo span {
+      color: var(--accent);
+    }
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: var(--accent);
+    }
+    .theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .hero {
+      background: linear-gradient(to right, #0077ff, #00c6ff);
+      color: white;
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+    .hero-content h1 {
+      font-size: 2.8rem;
+    }
+    .hero-content span {
+      color: #ffeb3b;
+    }
+    .hero-content p {
+      margin: 1rem 0;
+    }
+    .btn {
+      display: inline-block;
+      background: white;
+      color: #0077ff;
+      padding: 0.8rem 1.6rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #ffeb3b;
+    }
+    .tools-section {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .tools-section h2 {
+      margin-bottom: 2rem;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .tool-card {
+      background: var(--card-bg);
+      padding: 2rem 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .tool-card i {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .about-section {
+      padding: 3rem 2rem;
+      text-align: center;
+      background: var(--card-bg);
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo">AIO<span>Tools</span></div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>All-in-One <span>Web Tools</span></h1>
+      <p>Your universal toolkit for productivity, conversions, and creativity.</p>
+      <a href="#tools" class="btn">Explore Tools</a>
+    </div>
+  </section>
+
+  <section id="tools" class="tools-section">
+    <h2>Popular Tools</h2>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <i class="fa fa-file-text-o"></i>
+        <h3>Text Tools</h3>
+        <p>Format, count words, and analyze your text easily.</p>
+      </div>
+      <div class="tool-card">
+        <i class="fa fa-picture-o"></i>
+        <h3>Image Tools</h3>
+        <p>Resize, compress, or convert images in seconds.</p>
+      </div>
+      <div class="tool-card">
+        <i class="fa fa-exchange"></i>
+        <h3>Converters</h3>
+        <p>Convert files, units, and formats effortlessly.</p>
+      </div>
+      <div class="tool-card">
+        <i class="fa fa-lock"></i>
+        <h3>Security Tools</h3>
+        <p>Generate passwords, encode or decode text safely.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="about-section">
+    <h2>About AIO Tools</h2>
+    <p>AIO Tools is your one-stop solution for quick and reliable web-based utilities. Built for speed, simplicity, and accessibility.</p>
+  </section>
+
+  <footer id="contact">
+    <p>Made with ❤️ by AIO Tools | © 2025</p>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const toggleBtn = document.getElementById('themeToggle');
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      toggleBtn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    });
+  </script>
+</body>
+</html>
