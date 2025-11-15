@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Multi Photo Printing System - A4 Portrait</title>
+    <title>Multi Photo Printing System - A4 Landscape</title>
     <style>
         body {
             font-family: Arial;
             padding: 20px;
         }
 
-        /* A4 PORTRAIT SIZE */
+        /* A4 LANDSCAPE: 297mm wide, 210mm high */
         #printArea {
-            width: 210mm;
-            height: 297mm;
+            width: 297mm;
+            height: 210mm;
             padding: 10mm;
             box-sizing: border-box;
             display: flex;
@@ -20,9 +20,9 @@
             border: 1px solid #ccc;
         }
 
-        /* Small photos (customizable) */
+        /* Small image size */
         .photo {
-            width: 25mm;
+            width: 25mm;   /* smaller than passport */
             height: 30mm;
             object-fit: cover;
             border: 1px solid #000;
@@ -46,12 +46,12 @@
 </head>
 <body>
 
-<h2>A4 Portrait - Multi Photo Printing</h2>
+<h2>A4 Landscape - Multi Photo Printing</h2>
 
 <label>Select Multiple Images:</label>
 <input type="file" id="imageInput" accept="image/*" multiple><br><br>
 
-<label>Copies per Photo:</label>
+<label>Copies Per Photo:</label>
 <input type="number" id="copyInput" value="1"><br><br>
 
 <button onclick="generatePhotos()">Generate Layout</button>
@@ -59,7 +59,7 @@
 
 <hr>
 
-<h3>Preview (A4 Portrait Layout)</h3>
+<h3>Preview (A4 Landscape Layout)</h3>
 <div id="printArea"></div>
 
 <script>
@@ -73,17 +73,15 @@ function generatePhotos() {
         return;
     }
 
-    printArea.innerHTML = ""; // clear previous
+    printArea.innerHTML = ""; // clear old layout
 
-    // Loop through each uploaded file
     Array.from(files).forEach(file => {
         const imgURL = URL.createObjectURL(file);
 
-        // Add multiple copies of each image
         for (let i = 0; i < copies; i++) {
             const img = document.createElement("img");
             img.src = imgURL;
-            img.className = "photo";
+            img.classList.add("photo");
             printArea.appendChild(img);
         }
     });
