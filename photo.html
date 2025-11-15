@@ -2,45 +2,45 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>A4 Passport Photo Layout</title>
+<title>A4 Photo Print</title>
 
 <style>
     body {
         margin: 0;
         padding: 0;
-        font-family: Arial, sans-serif;
+        font-family: Arial;
     }
 
-    /* A4 PORTRAIT */
     @page {
         size: A4 portrait;
-        margin: 10mm;
+        margin: 8mm;
     }
 
+    /* CONTROLS AREA (Hidden in print) */
     #controls {
         padding: 15px;
         background: #f2f2f2;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #ccc;
     }
 
+    /* PRINT AREA - ONLY THIS WILL PRINT */
     #photoArea {
-        width: 100%;
         display: flex;
         flex-wrap: wrap;
-        gap: 5mm;
-        padding: 10mm;
+        gap: 4mm;
+        padding: 8mm;
         box-sizing: border-box;
     }
 
-    /* Photo container */
+    /* Photo size (landscape, smaller than passport photo) */
     .photoBox {
+        width: 35mm;         /* landscape width */
+        height: 25mm;        /* landscape height */
+        border: 0.5mm solid #000;   /* automatic border */
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 35mm;       /* smaller than passport (passport is 35x45mm) */
-        height: 25mm;      /* landscape orientation */
         overflow: hidden;
-        border: 1px solid #ccc;
     }
 
     .photoBox img {
@@ -48,27 +48,29 @@
         height: auto;
     }
 
+    /* PRINT MODE */
     @media print {
-        #controls { display: none; }
-        body { margin: 0; }
+        #controls { display: none !important; }
+        body { margin: 0 !important; }
+        #photoArea { padding: 0; gap: 3mm; }
     }
 </style>
 </head>
 
 <body>
 
+<!-- CONTROL PANEL (Will not print) -->
 <div id="controls">
-    <h3>A4 Photo Printing System</h3>
-    <p>Select multiple images and set number of copies for each.</p>
-
+    <h3>A4 Passport Size Printing System</h3>
     <input type="file" id="inputFiles" multiple accept="image/*"><br><br>
 
     <label>Copies per image:</label>
     <input type="number" id="copies" value="6" min="1" style="width:60px;">
-    <button onclick="generate()">Generate Layout</button>
-    <button onclick="window.print()">Print A4</button>
+    <button onclick="generate()">Generate</button>
+    <button onclick="window.print()">Print Direct</button>
 </div>
 
+<!-- PRINT LAYOUT -->
 <div id="photoArea"></div>
 
 <script>
@@ -77,22 +79,22 @@ function generate() {
     const copies = parseInt(document.getElementById("copies").value);
     const output = document.getElementById("photoArea");
 
-    output.innerHTML = ""; // clear old content
+    output.innerHTML = ""; // clear old layout
 
     Array.from(files).forEach(file => {
         let reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = e => {
             for (let i = 0; i < copies; i++) {
-                let div = document.createElement("div");
-                div.className = "photoBox";
+                let box = document.createElement("div");
+                box.className = "photoBox";
 
                 let img = document.createElement("img");
                 img.src = e.target.result;
 
-                div.appendChild(img);
-                output.appendChild(div);
+                box.appendChild(img);
+                output.appendChild(box);
             }
-        }
+        };
         reader.readAsDataURL(file);
     });
 }
