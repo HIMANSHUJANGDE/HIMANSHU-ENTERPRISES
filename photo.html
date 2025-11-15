@@ -5,25 +5,19 @@
 <title>A4 Photo Print</title>
 
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial;
-    }
+    body { margin: 0; padding: 0; font-family: Arial; }
 
     @page {
         size: A4 portrait;
         margin: 8mm;
     }
 
-    /* CONTROLS AREA (Hidden in print) */
     #controls {
         padding: 15px;
         background: #f2f2f2;
         border-bottom: 1px solid #ccc;
     }
 
-    /* PRINT AREA - ONLY THIS WILL PRINT */
     #photoArea {
         display: flex;
         flex-wrap: wrap;
@@ -32,11 +26,10 @@
         box-sizing: border-box;
     }
 
-    /* Photo size (landscape, smaller than passport photo) */
     .photoBox {
-        width: 35mm;         /* landscape width */
-        height: 25mm;        /* landscape height */
-        border: 0.5mm solid #000;   /* automatic border */
+        width: 35mm;
+        height: 25mm;
+        border: 0.5mm solid #000;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -48,7 +41,10 @@
         height: auto;
     }
 
-    /* PRINT MODE */
+    .fileItem {
+        margin-bottom: 8px;
+    }
+
     @media print {
         #controls { display: none !important; }
         body { margin: 0 !important; }
@@ -59,32 +55,48 @@
 
 <body>
 
-<!-- CONTROL PANEL (Will not print) -->
 <div id="controls">
-    <h3>A4 Passport Size Printing System</h3>
-    <input type="file" id="inputFiles" multiple accept="image/*"><br><br>
+    <h3>A4 Multi-Image Photo Generator</h3>
 
-    <label>Copies per image:</label>
-    <input type="number" id="copies" value="6" min="1" style="width:60px;">
-    <button onclick="generate()">Generate</button>
-    <button onclick="window.print()">Print Direct</button>
+    <input type="file" id="inputFiles" multiple accept="image/*" onchange="showInputs()"><br><br>
+
+    <div id="copiesInputs"></div>
+
+    <button onclick="generate()">Generate Photos</button>
+    <button onclick="window.print()">Print</button>
 </div>
 
-<!-- PRINT LAYOUT -->
 <div id="photoArea"></div>
 
 <script>
+function showInputs() {
+    const files = document.getElementById("inputFiles").files;
+    const box = document.getElementById("copiesInputs");
+    box.innerHTML = "";
+
+    Array.from(files).forEach((file, index) => {
+        const div = document.createElement("div");
+        div.className = "fileItem";
+        div.innerHTML = `
+            <strong>${file.name}</strong> 
+            <input type="number" id="pcs_${index}" value="6" min="1" style="width:60px;">
+            pcs
+        `;
+        box.appendChild(div);
+    });
+}
+
 function generate() {
     const files = document.getElementById("inputFiles").files;
-    const copies = parseInt(document.getElementById("copies").value);
     const output = document.getElementById("photoArea");
+    output.innerHTML = "";
 
-    output.innerHTML = ""; // clear old layout
+    Array.from(files).forEach((file, index) => {
+        const pcs = parseInt(document.getElementById("pcs_" + index).value);
 
-    Array.from(files).forEach(file => {
         let reader = new FileReader();
         reader.onload = e => {
-            for (let i = 0; i < copies; i++) {
+            for (let i = 0; i < pcs; i++) {
                 let box = document.createElement("div");
                 box.className = "photoBox";
 
