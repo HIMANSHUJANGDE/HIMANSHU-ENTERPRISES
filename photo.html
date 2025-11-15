@@ -1,102 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>A4 Photo Print Layout</title>
-
+<meta charset="UTF-8">
+<title>AIO 45mm Photo Printing</title>
 <style>
-/* -------- A4 PAGE SETTINGS -------- */
-@page {
-    size: A4 portrait;
-    margin: 10mm;
-}
-
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
+    margin: 20px;
+}
+#previewArea {
+    width: 210mm;        /* A4 width */
+    height: 297mm;       /* A4 height */
+    border: 1px solid #000;
+    position: relative;
+    margin-top: 20px;
+    background: white;
 }
 
-/* Container for controls (not printed) */
+.photoPrint {
+    position: absolute;
+    width: 45mm;        /* PHOTO WIDTH = 45MM */
+    height: auto;       /* Landscape shape preserved */
+    transform: rotate(90deg); /* Make photo landscape */
+    object-fit: cover;
+}
 #controls {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
-
-@media print {
-    #controls {
-        display: none;
-    }
-}
-
-/* -------- PHOTO GRID LAYOUT -------- */
-#photoSheet {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* auto grid */
-    gap: 5px;
-}
-
-/* Image frame */
-.photoBox {
-    width: 70px;     /* Smaller than passport size; passport ±35×45mm */
-    height: 50px;    /* Landscape orientation */
-    overflow: hidden;
-    border: 1px solid #999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.photoBox img {
-    width: 100%;
-    height: auto;
+button {
+    padding: 8px 16px;
+    margin-top: 10px;
 }
 </style>
 </head>
 <body>
 
+<h2>AIO 45mm Photo Printing System</h2>
+
 <div id="controls">
-    <h2>A4 Photo Printing – Landscape Small Photos</h2>
+    <label>Select Photos: </label>
+    <input type="file" id="imgFiles" accept="image/*" multiple />
 
-    <label>Select images:</label>
-    <input id="imageFiles" type="file" accept="image/*" multiple><br><br>
+    <br><br>
 
-    <label>How many pieces per photo: </label>
-    <input id="piecesInput" type="number" value="1" min="1" style="width:80px;"><br><br>
+    <label>Number of pieces per photo: </label>
+    <input type="number" id="pcs" min="1" max="50" value="4">
 
-    <button onclick="generate()">Generate Layout</button>
+    <br>
+
+    <button onclick="generateLayout()">Generate Layout</button>
     <button onclick="window.print()">Print</button>
 </div>
 
-<div id="photoSheet"></div>
+<div id="previewArea"></div>
 
 <script>
-function generate() {
-    const files = document.getElementById("imageFiles").files;
-    const pieces = parseInt(document.getElementById("piecesInput").value);
-    const sheet = document.getElementById("photoSheet");
+function generateLayout() {
+    const files = document.getElementById("imgFiles").files;
+    const pcs = parseInt(document.getElementById("pcs").value);
+    const preview = document.getElementById("previewArea");
 
-    sheet.innerHTML = ""; // clear previous
+    preview.innerHTML = ""; // clear previous layout
 
-    if (!files.length) {
-        alert("Please select images first.");
-        return;
-    }
+    let x = 5;   // start margin
+    let y = 5;
+    const stepX = 55; // spacing between images
+    const stepY = 55;
 
-    Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = event => {
-            for (let i = 0; i < pieces; i++) {
-                const box = document.createElement("div");
-                box.className = "photoBox";
+    [...files].forEach(file => {
+        for (let i = 0; i < pcs; i++) {
 
-                const img = document.createElement("img");
-                img.src = event.target.result;
+            const img = document.createElement("img");
+            img.className = "photoPrint";
+            img.src = URL.createObjectURL(file);
 
-                box.appendChild(img);
-                sheet.appendChild(box);
+            img.style.left = x + "mm";
+            img.style.top = y + "mm";
+
+            preview.appendChild(img);
+
+            x += stepX;
+            if (x > 150) { // wrap column
+                x = 5;
+                y += stepY;
             }
-        };
-        reader.readAsDataURL(file);
+        }
     });
 }
 </script>
