@@ -2,10 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>A4 Photo Print – AIO</title>
+<title>A4 Photo Print Layout</title>
 
 <style>
-/* ------------------------- A4 PAGE PRINTING ------------------------- */
+/* -------- A4 PAGE SETTINGS -------- */
 @page {
     size: A4 portrait;
     margin: 10mm;
@@ -17,25 +17,28 @@ body {
     padding: 20px;
 }
 
+/* Container for controls (not printed) */
 #controls {
     margin-bottom: 20px;
 }
 
 @media print {
-    #controls { display: none; }
+    #controls {
+        display: none;
+    }
 }
 
-/* ----------------------- PHOTO GRID LAYOUT -------------------------- */
+/* -------- PHOTO GRID LAYOUT -------- */
 #photoSheet {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* auto grid */
     gap: 5px;
 }
 
-/* Each photo box (smaller than passport size, landscape) */
+/* Image frame */
 .photoBox {
-    width: 70px;    
-    height: 50px;   
+    width: 70px;     /* Smaller than passport size; passport ±35×45mm */
+    height: 50px;    /* Landscape orientation */
     overflow: hidden;
     border: 1px solid #999;
     display: flex;
@@ -49,16 +52,15 @@ body {
 }
 </style>
 </head>
-
 <body>
 
 <div id="controls">
-    <h2>A4 Photo Printing – AIO Version</h2>
+    <h2>A4 Photo Printing – Landscape Small Photos</h2>
 
-    <label><b>Select images:</b></label><br>
+    <label>Select images:</label>
     <input id="imageFiles" type="file" accept="image/*" multiple><br><br>
 
-    <label><b>How many copies per image:</b></label><br>
+    <label>How many pieces per photo: </label>
     <input id="piecesInput" type="number" value="1" min="1" style="width:80px;"><br><br>
 
     <button onclick="generate()">Generate Layout</button>
@@ -73,10 +75,10 @@ function generate() {
     const pieces = parseInt(document.getElementById("piecesInput").value);
     const sheet = document.getElementById("photoSheet");
 
-    sheet.innerHTML = ""; // Clear previous layout
+    sheet.innerHTML = ""; // clear previous
 
     if (!files.length) {
-        alert("Please select images.");
+        alert("Please select images first.");
         return;
     }
 
