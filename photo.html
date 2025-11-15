@@ -2,10 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>A4 Multi-Photo Print Direct</title>
+<title>A4 Multi-Photo Print with Rotate</title>
 <style>
 body { margin:0; font-family:Arial; }
 @page { size:A4 portrait; margin:8mm; }
+
 #controls { padding:15px; background:#f2f2f2; border-bottom:1px solid #ccc; }
 #previewList { margin-top:15px; display:flex; flex-direction:column; gap:12px; }
 .previewItem { display:flex; align-items:center; gap:12px; padding:8px; background:#fff; border:1px solid #ccc; }
@@ -13,7 +14,7 @@ body { margin:0; font-family:Arial; }
 
 #photoArea { display:flex; flex-wrap:wrap; gap:4mm; padding:8mm; }
 .photoBox { width:35mm; height:25mm; border:0.5mm solid #000; display:flex; justify-content:center; align-items:center; overflow:hidden; }
-.photoBox img { width:100%; }
+.photoBox img { width:100%; transform-origin:center center; }
 
 @media print { #controls,#previewList{display:none !important;} #photoArea{gap:3mm;padding:0;} }
 </style>
@@ -21,9 +22,9 @@ body { margin:0; font-family:Arial; }
 <body>
 
 <div id="controls">
-<h3>A4 Multi-Photo Print (Direct)</h3>
+<h3>A4 Multi-Photo Print with Rotate</h3>
 <input type="file" id="fileInput" accept="image/*" multiple onchange="loadImages()">
-<p>Upload multiple images → Set PCS → Generate → Print</p>
+<p>Upload multiple images → Set PCS & Rotate → Generate → Print</p>
 <div id="previewList"></div>
 <button onclick="generate()">Generate Photos</button>
 <button onclick="window.print()">Print</button>
@@ -41,14 +42,21 @@ function loadImages() {
         let reader = new FileReader();
         reader.onload = e => {
             let id = images.length;
-            images.push({ src: e.target.result, pcs: 6 });
+            images.push({ src: e.target.result, pcs: 6, rotate: 0 });
 
             let div = document.createElement("div");
             div.className = "previewItem";
             div.innerHTML = `
                 <img src="${e.target.result}">
                 <div>
-                    PCS: <input type="number" min="1" value="6" onchange="images[${id}].pcs=this.value">
+                    PCS: <input type="number" min="1" value="6" onchange="images[${id}].pcs=this.value"><br>
+                    Rotate:
+                    <select onchange="images[${id}].rotate=this.value">
+                        <option value="0">0°</option>
+                        <option value="90">90°</option>
+                        <option value="180">180°</option>
+                        <option value="270">270°</option>
+                    </select>
                 </div>`;
             previewList.appendChild(div);
         };
@@ -66,6 +74,7 @@ function generate() {
 
             let pic = document.createElement("img");
             pic.src = img.src;
+            pic.style.transform = `rotate(${img.rotate}deg)`;
             box.appendChild(pic);
 
             photoArea.appendChild(box);
