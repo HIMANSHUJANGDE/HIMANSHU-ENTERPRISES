@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Photo Printing System</title>
+    <title>Photo Printing System - Landscape A4</title>
     <style>
         body {
             font-family: Arial;
             padding: 20px;
         }
 
+        /* A4 LANDSCAPE: 297mm wide, 210mm high */
         #printArea {
-            width: 210mm;         /* A4 width */
-            height: 297mm;        /* A4 height */
+            width: 297mm;      /* landscape width */
+            height: 210mm;     /* landscape height */
             padding: 10mm;
             box-sizing: border-box;
             display: flex;
@@ -19,8 +20,9 @@
             border: 1px solid #ccc;
         }
 
+        /* Small photo size (smaller than passport) */
         .photo {
-            width: 25mm;   /* Smaller than passport (passport = 35x45mm) */
+            width: 25mm;   /* change here for size */
             height: 30mm;
             object-fit: cover;
             border: 1px solid #000;
@@ -44,7 +46,7 @@
 </head>
 <body>
 
-<h2>Small Photo Printing System</h2>
+<h2>Small Photo Printing System (A4 Landscape)</h2>
 
 <label>Select Image:</label>
 <input type="file" id="imageInput" accept="image/*"><br><br>
@@ -57,7 +59,7 @@
 
 <hr>
 
-<h3>Preview (A4 Layout)</h3>
+<h3>Preview (A4 Landscape Layout)</h3>
 <div id="printArea"></div>
 
 <script>
@@ -71,18 +73,9 @@ function generatePhotos() {
         return;
     }
 
-    printArea.innerHTML = ""; // clear area
+    printArea.innerHTML = ""; // clear previous photos
 
     const imgURL = URL.createObjectURL(fileInput);
 
     for (let i = 0; i < count; i++) {
         const img = document.createElement("img");
-        img.src = imgURL;
-        img.className = "photo";
-        printArea.appendChild(img);
-    }
-}
-</script>
-
-</body>
-</html>
