@@ -2,159 +2,73 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>A4 Photo Print</title>
-
+<title>A4 Multi-Photo Print Direct</title>
 <style>
-    body { margin: 0; padding: 0; font-family: Arial; }
+body { margin:0; font-family:Arial; }
+@page { size:A4 portrait; margin:8mm; }
+#controls { padding:15px; background:#f2f2f2; border-bottom:1px solid #ccc; }
+#previewList { margin-top:15px; display:flex; flex-direction:column; gap:12px; }
+.previewItem { display:flex; align-items:center; gap:12px; padding:8px; background:#fff; border:1px solid #ccc; }
+.previewItem img { width:70px; border:1px solid #aaa; }
 
-    @page { size: A4 portrait; margin: 8mm; }
+#photoArea { display:flex; flex-wrap:wrap; gap:4mm; padding:8mm; }
+.photoBox { width:35mm; height:25mm; border:0.5mm solid #000; display:flex; justify-content:center; align-items:center; overflow:hidden; }
+.photoBox img { width:100%; }
 
-    #controls {
-        padding: 15px;
-        background: #f2f2f2;
-        border-bottom: 1px solid #ccc;
-    }
-
-    #previewList {
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .previewItem {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        padding: 8px;
-        border: 1px solid #ccc;
-        background: #fff;
-    }
-
-    .previewItem img {
-        width: 70px;
-        height: auto;
-        border: 1px solid #aaa;
-    }
-
-    #photoArea {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4mm;
-        padding: 8mm;
-    }
-
-    .photoBox {
-        width: 35mm;
-        height: 25mm;
-        border: 0.5mm solid #000;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .photoBox img {
-        width: 100%;
-        height: auto;
-        transform-origin: center center;
-    }
-
-    @media print {
-        #controls, #previewList { display: none !important; }
-        body { margin: 0 !important; }
-        #photoArea { padding: 0; gap: 3mm; }
-    }
+@media print { #controls,#previewList{display:none !important;} #photoArea{gap:3mm;padding:0;} }
 </style>
 </head>
-
 <body>
 
 <div id="controls">
-    <h3>A4 Multi-Image Photo Generator</h3>
-
-    <input type="file" id="singleUpload" accept="image/*" onchange="addPreview()">
-    <p>Upload images one by one. Set PCS and Rotate each image.</p>
-
-    <div id="previewList"></div>
-
-    <button onclick="generate()">Generate Photos</button>
-    <button onclick="window.print()">Print</button>
+<h3>A4 Multi-Photo Print (Direct)</h3>
+<input type="file" id="fileInput" accept="image/*" multiple onchange="loadImages()">
+<p>Upload multiple images → Set PCS → Generate → Print</p>
+<div id="previewList"></div>
+<button onclick="generate()">Generate Photos</button>
+<button onclick="window.print()">Print</button>
 </div>
 
 <div id="photoArea"></div>
 
 <script>
-let images = []; // store {src, pcs, rotate}
+let images = [];
 
-function addPreview() {
-    const input = document.getElementById("singleUpload");
-    const file = input.files[0];
-    if (!file) return;
+function loadImages() {
+    const files = fileInput.files;
+    for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let reader = new FileReader();
+        reader.onload = e => {
+            let id = images.length;
+            images.push({ src: e.target.result, pcs: 6 });
 
-    let reader = new FileReader();
-    reader.onload = e => {
-        const id = images.length;
-        images.push({ src: e.target.result, pcs: 6, rotate: 0 });
-
-        const item = document.createElement("div");
-        item.className = "previewItem";
-        item.id = "preview_" + id;
-
-        item.innerHTML = `
-            <img src="${e.target.result}" id="prevImg_${id}"
-                 style="transform: rotate(0deg);">
-
-            <div>
-                <strong>${file.name}</strong><br>
-
-                PCS:
-                <input type="number" min="1" value="6" 
-                       style="width:60px;"
-                       onchange="updatePCS(${id}, this.value)">
-                <br>
-
-                Rotate:
-                <select onchange="updateRotate(${id}, this.value)">
-                    <option value="0">0°</option>
-                    <option value="90">90°</option>
-                    <option value="180">180°</option>
-                    <option value="270">270°</option>
-                </select>
-            </div>
-        `;
-
-        document.getElementById("previewList").appendChild(item);
-    };
-
-    reader.readAsDataURL(file);
-    input.value = ""; // reset for next upload
-}
-
-function updatePCS(id, value) {
-    images[id].pcs = parseInt(value);
-}
-
-function updateRotate(id, value) {
-    images[id].rotate = parseInt(value);
-    document.getElementById("prevImg_" + id).style.transform = `rotate(${value}deg)`;
+            let div = document.createElement("div");
+            div.className = "previewItem";
+            div.innerHTML = `
+                <img src="${e.target.result}">
+                <div>
+                    PCS: <input type="number" min="1" value="6" onchange="images[${id}].pcs=this.value">
+                </div>`;
+            previewList.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    }
+    fileInput.value = "";
 }
 
 function generate() {
-    const area = document.getElementById("photoArea");
-    area.innerHTML = "";
-
-    images.forEach(imgData => {
-        for (let i = 0; i < imgData.pcs; i++) {
+    photoArea.innerHTML = "";
+    images.forEach(img => {
+        for (let i = 0; i < img.pcs; i++) {
             let box = document.createElement("div");
             box.className = "photoBox";
 
-            let img = document.createElement("img");
-            img.src = imgData.src;
-            img.style.transform = `rotate(${imgData.rotate}deg)`;
+            let pic = document.createElement("img");
+            pic.src = img.src;
+            box.appendChild(pic);
 
-            box.appendChild(img);
-            area.appendChild(box);
+            photoArea.appendChild(box);
         }
     });
 }
