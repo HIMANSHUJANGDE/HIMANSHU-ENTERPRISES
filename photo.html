@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Photo Printing System - Landscape A4</title>
+    <title>Multi Photo Printing System - A4 Portrait</title>
     <style>
         body {
             font-family: Arial;
             padding: 20px;
         }
 
-        /* A4 LANDSCAPE: 297mm wide, 210mm high */
+        /* A4 PORTRAIT SIZE */
         #printArea {
-            width: 297mm;      /* landscape width */
-            height: 210mm;     /* landscape height */
+            width: 210mm;
+            height: 297mm;
             padding: 10mm;
             box-sizing: border-box;
             display: flex;
@@ -20,9 +20,9 @@
             border: 1px solid #ccc;
         }
 
-        /* Small photo size (smaller than passport) */
+        /* Small photos (customizable) */
         .photo {
-            width: 25mm;   /* change here for size */
+            width: 25mm;
             height: 30mm;
             object-fit: cover;
             border: 1px solid #000;
@@ -46,36 +46,49 @@
 </head>
 <body>
 
-<h2>Small Photo Printing System (A4 Landscape)</h2>
+<h2>A4 Portrait - Multi Photo Printing</h2>
 
-<label>Select Image:</label>
-<input type="file" id="imageInput" accept="image/*"><br><br>
+<label>Select Multiple Images:</label>
+<input type="file" id="imageInput" accept="image/*" multiple><br><br>
 
-<label>Number of Photos (e.g., 45): </label>
-<input type="number" id="countInput" value="45"><br><br>
+<label>Copies per Photo:</label>
+<input type="number" id="copyInput" value="1"><br><br>
 
-<button onclick="generatePhotos()">Generate Photos</button>
+<button onclick="generatePhotos()">Generate Layout</button>
 <button onclick="window.print()">Print</button>
 
 <hr>
 
-<h3>Preview (A4 Landscape Layout)</h3>
+<h3>Preview (A4 Portrait Layout)</h3>
 <div id="printArea"></div>
 
 <script>
 function generatePhotos() {
-    const fileInput = document.getElementById("imageInput").files[0];
-    const count = Number(document.getElementById("countInput").value);
+    const files = document.getElementById("imageInput").files;
+    const copies = Number(document.getElementById("copyInput").value);
     const printArea = document.getElementById("printArea");
 
-    if (!fileInput) {
-        alert("Please select an image!");
+    if (files.length === 0) {
+        alert("Please select at least one image.");
         return;
     }
 
-    printArea.innerHTML = ""; // clear previous photos
+    printArea.innerHTML = ""; // clear previous
 
-    const imgURL = URL.createObjectURL(fileInput);
+    // Loop through each uploaded file
+    Array.from(files).forEach(file => {
+        const imgURL = URL.createObjectURL(file);
 
-    for (let i = 0; i < count; i++) {
-        const img = document.createElement("img");
+        // Add multiple copies of each image
+        for (let i = 0; i < copies; i++) {
+            const img = document.createElement("img");
+            img.src = imgURL;
+            img.className = "photo";
+            printArea.appendChild(img);
+        }
+    });
+}
+</script>
+
+</body>
+</html>
