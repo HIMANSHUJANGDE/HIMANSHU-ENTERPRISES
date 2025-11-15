@@ -2,59 +2,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>A4 Photo Print with Full Crop Tool</title>
+<title>A4 Photo Print</title>
 
-<!-- CROP TOOL CSS -->
 <style>
-/* Cropper.js CSS (minified) */
-.cropper-container {
-    position: relative;
-    direction: ltr;
-    touch-action: none;
-    user-select: none;
-}
-.cropper-container img {
-    display: block;
-    width: 100%;
-}
-.cropper-crop-box, .cropper-view-box {
-    position: absolute;
-    border-radius: 0;
-    box-sizing: border-box;
-}
-.cropper-view-box {
-    outline: 1px solid #39f;
-    outline-color: rgba(51, 153, 255, 0.75);
-}
-.cropper-face, .cropper-line, .cropper-point {
-    background-color: #39f;
-    opacity: .1;
-}
-.cropper-line, .cropper-point {
-    position: absolute;
-    display: block;
-    width: 5px;
-    height: 5px;
-    opacity: 1;
-}
-.cropper-point {
-    width: 10px;
-    height: 10px;
-    background-color: #39f;
-}
-
-/* UI + PRINT CSS */
 body { margin: 0; font-family: Arial; }
+
 @page { size: A4 portrait; margin: 8mm; }
 
+/* Control Panel */
 #controls {
-    background: #f2f2f2;
     padding: 15px;
+    background: #f2f2f2;
     border-bottom: 1px solid #ccc;
 }
 
 #previewList {
-    margin-top: 10px;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -62,19 +25,19 @@ body { margin: 0; font-family: Arial; }
 
 .previewItem {
     display: flex;
+    align-items: center;
     gap: 12px;
     padding: 8px;
     border: 1px solid #ccc;
     background: #fff;
-    align-items: center;
 }
 
 .previewItem img {
     width: 70px;
-    height: auto;
     border: 1px solid #aaa;
 }
 
+/* Print Layout */
 #photoArea {
     display: flex;
     flex-wrap: wrap;
@@ -86,37 +49,39 @@ body { margin: 0; font-family: Arial; }
     width: 35mm;
     height: 25mm;
     border: 0.5mm solid #000;
-    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
-.photoBox img {
-    width: 100%;
-}
+.photoBox img { width: 100%; }
 
-/* Crop Modal */
+/* CROP MODAL */
 #cropModal {
-    display: none;
     position: fixed;
-    top:0;left:0;
-    width:100%;height:100%;
-    background:rgba(0,0,0,0.8);
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.8);
+    display:none;
     justify-content:center;
     align-items:center;
 }
 
 #cropBox {
-    background:#fff;
+    background:white;
     padding:20px;
-    max-width:600px;
+    border-radius:8px;
+}
+
+#cropCanvas {
+    border:1px solid #333;
+    cursor:grab;
 }
 
 @media print {
     #controls, #previewList, #cropModal { display:none !important; }
-    body { margin:0 !important; }
-    #photoArea { gap:3mm; padding:0; }
+    #photoArea { padding:0; gap:3mm; }
 }
 </style>
 
@@ -124,97 +89,55 @@ body { margin: 0; font-family: Arial; }
 <body>
 
 <div id="controls">
-    <h2>A4 Photo Print Generator + Full Crop Tool</h2>
+    <h3>A4 Multi-Image Photo Generator</h3>
 
-    <input type="file" id="singleUpload" accept="image/*" onchange="addImage()">
-    <p>Upload → Crop → Rotate → PCS → Generate → Print</p>
+    <input type="file" id="fileInput" accept="image/*" onchange="loadImage()">
+    <p>Upload → Crop → Zoom → Rotate → PCS → Generate → Print</p>
 
     <div id="previewList"></div>
-
-    <button onclick="generate()">Generate</button>
+    <button onclick="generate()">Generate Photos</button>
     <button onclick="window.print()">Print</button>
 </div>
 
 <div id="photoArea"></div>
 
-<!-- ---------------- CROP MODAL ---------------- -->
+<!-- Crop Modal -->
 <div id="cropModal">
     <div id="cropBox">
         <h3>Crop Image</h3>
-        <img id="cropImage" style="max-width:100%;">
+        <canvas id="cropCanvas" width="400" height="300"></canvas><br><br>
+
+        Zoom:
+        <input type="range" id="zoomSlider" min="0.5" max="3" step="0.05" value="1">
         <br><br>
+
         <button onclick="applyCrop()">Apply Crop</button>
         <button onclick="closeCrop()">Cancel</button>
     </div>
 </div>
 
-<!-- ---------- Cropper.js embedded (minified) -------- -->
 <script>
-/* Minimal Cropper.js Implementation (core functions only) */
-class MiniCropper {
-    constructor(image) {
-        this.img = image;
-        this.canvas = document.createElement("canvas");
-        this.ctx = this.canvas.getContext("2d");
+let images = []; // {src, croppedSrc, pcs, rotate}
+let cropIndex;
+let cropImg = new Image();
+let zoom = 1;
+let offsetX = 0, offsetY = 0;
+let drag = false;
 
-        this.x = 50; 
-        this.y = 50;
-        this.w = image.width - 100;
-        this.h = image.height - 100;
+// CANVAS
+const canvas = document.getElementById("cropCanvas");
+const ctx = canvas.getContext("2d");
 
-        this.dragging = false;
-
-        image.parentElement.style.position = "relative";
-        this.overlay = document.createElement("div");
-        this.overlay.style.position = "absolute";
-        this.overlay.style.top = this.y + "px";
-        this.overlay.style.left = this.x + "px";
-        this.overlay.style.width = this.w + "px";
-        this.overlay.style.height = this.h + "px";
-        this.overlay.style.border = "2px solid #39f";
-
-        image.parentElement.appendChild(this.overlay);
-
-        this.overlay.onmousedown = () => { this.dragging = true; };
-        window.onmouseup = () => { this.dragging = false; };
-        window.onmousemove = e => {
-            if (this.dragging) {
-                this.x += e.movementX;
-                this.y += e.movementY;
-                this.overlay.style.top = this.y + "px";
-                this.overlay.style.left = this.x + "px";
-            }
-        };
-    }
-
-    getCropped() {
-        this.canvas.width = this.w;
-        this.canvas.height = this.h;
-        this.ctx.drawImage(this.img, this.x, this.y, this.w, this.h, 0, 0, this.w, this.h);
-        return this.canvas.toDataURL("image/jpeg");
-    }
-
-    destroy() {
-        this.overlay.remove();
-    }
-}
-</script>
-
-<script>
-let images = [];
-let currentCropIndex = -1;
-let cropper;
-
-// Add image to preview list
-function addImage() {
-    const input = document.getElementById("singleUpload");
-    const file = input.files[0];
+// ---------------------------------------------------------
+// Load image into preview
+// ---------------------------------------------------------
+function loadImage() {
+    const file = fileInput.files[0];
     if (!file) return;
 
     let reader = new FileReader();
     reader.onload = e => {
         const id = images.length;
-
         images.push({
             src: e.target.result,
             croppedSrc: e.target.result,
@@ -224,83 +147,133 @@ function addImage() {
 
         const item = document.createElement("div");
         item.className = "previewItem";
-        item.id = "prevItem_" + id;
+        item.id = "item_" + id;
 
         item.innerHTML = `
-            <img id="prevImg_${id}" src="${e.target.result}">
+            <img src="${e.target.result}" id="prev_${id}">
             <div>
-                <strong>${file.name}</strong><br>
-                PCS:
-                <input type="number" min="1" value="6"
-                       onchange="images[${id}].pcs=this.value">
-                <br>
+                PCS: <input type="number" value="6" min="1"
+                       onchange="images[${id}].pcs=this.value"><br>
+
                 Rotate:
-                <select onchange="rotatePreview(${id}, this.value)">
+                <select onchange="rotate(${id}, this.value)">
                     <option value="0">0°</option>
                     <option value="90">90°</option>
                     <option value="180">180°</option>
                     <option value="270">270°</option>
                 </select><br>
+
                 <button onclick="openCrop(${id})">Crop</button>
             </div>
         `;
 
-        document.getElementById("previewList").appendChild(item);
+        previewList.appendChild(item);
     };
 
     reader.readAsDataURL(file);
-    input.value = "";
+    fileInput.value = "";
 }
 
-// Rotate preview
-function rotatePreview(id, deg) {
+function rotate(id, deg) {
     images[id].rotate = deg;
-    document.getElementById("prevImg_" + id).style.transform = `rotate(${deg}deg)`;
+    document.getElementById("prev_" + id).style.transform = `rotate(${deg}deg)`;
 }
 
-// ------------------ FULL CROP SYSTEM ------------------
+// ---------------------------------------------------------
+// CROPPING TOOL (ZOOM + MOVE)
+// ---------------------------------------------------------
 function openCrop(id) {
-    currentCropIndex = id;
-
-    const cropImg = document.getElementById("cropImage");
+    cropIndex = id;
     cropImg.src = images[id].croppedSrc;
 
-    cropImg.onload = function() {
-        cropper = new MiniCropper(cropImg);
+    cropImg.onload = () => {
+        zoom = 1;
+        offsetX = 0;
+        offsetY = 0;
+
+        drawCrop();
     };
 
-    document.getElementById("cropModal").style.display = "flex";
+    document.getElementById("zoomSlider").value = 1;
+    cropModal.style.display = "flex";
 }
 
-function applyCrop() {
-    const newData = cropper.getCropped();
-    images[currentCropIndex].croppedSrc = newData;
-    document.getElementById("prevImg_" + currentCropIndex).src = newData;
+// Draw image inside crop canvas
+function drawCrop() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(
+        cropImg,
+        offsetX, offsetY,
+        cropImg.width * zoom,
+        cropImg.height * zoom
+    );
+}
 
-    cropper.destroy();
+// Mouse Move (drag image)
+canvas.onmousedown = () => drag = true;
+canvas.onmouseup = () => drag = false;
+
+canvas.onmousemove = e => {
+    if (drag) {
+        offsetX += e.movementX;
+        offsetY += e.movementY;
+        drawCrop();
+    }
+};
+
+// Mouse Wheel Zoom
+canvas.onwheel = e => {
+    e.preventDefault();
+    zoom += e.deltaY * -0.001;
+    zoom = Math.min(Math.max(0.5, zoom), 3);
+    zoomSlider.value = zoom;
+    drawCrop();
+};
+
+// Slider Zoom
+zoomSlider.oninput = function() {
+    zoom = parseFloat(this.value);
+    drawCrop();
+};
+
+// Apply Crop
+function applyCrop() {
+    let temp = document.createElement("canvas");
+    temp.width = 400;
+    temp.height = 300;
+    let tctx = temp.getContext("2d");
+
+    tctx.drawImage(cropImg, offsetX, offsetY, cropImg.width * zoom, cropImg.height * zoom);
+
+    let data = temp.toDataURL("image/jpeg");
+    images[cropIndex].croppedSrc = data;
+
+    document.getElementById("prev_" + cropIndex).src = data;
+
     closeCrop();
 }
 
 function closeCrop() {
-    document.getElementById("cropModal").style.display = "none";
+    cropModal.style.display = "none";
 }
 
-// ------------------ GENERATE PRINT PAGE ------------------
+// ---------------------------------------------------------
+// GENERATE PRINT PAGE
+// ---------------------------------------------------------
 function generate() {
-    const area = document.getElementById("photoArea");
-    area.innerHTML = "";
+    photoArea.innerHTML = "";
 
     images.forEach(img => {
         for (let i = 0; i < img.pcs; i++) {
-            let box = document.createElement("div");
+            const box = document.createElement("div");
             box.className = "photoBox";
 
-            let im = document.createElement("img");
+            const im = document.createElement("img");
             im.src = img.croppedSrc;
             im.style.transform = `rotate(${img.rotate}deg)`;
 
             box.appendChild(im);
-            area.appendChild(box);
+            photoArea.appendChild(box);
         }
     });
 }
