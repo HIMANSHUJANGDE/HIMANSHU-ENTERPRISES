@@ -1,192 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passport Photo Print Preview with Rotate</title>
+<title>A4 Photo Print</title>
+
 <style>
-  body {
-    font-family: sans-serif;
-    padding: 10px;
-  }
+    body { margin: 0; padding: 0; font-family: Arial; }
 
-  #controls {
-    margin-bottom: 20px;
-  }
+    @page { size: A4 portrait; margin: 8mm; }
 
-  input[type="number"] {
-    width: 60px;
-    margin-left: 5px;
-  }
-
-  #preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .preview-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .preview-item img {
-    max-width: 100px;
-    max-height: 130px;
-    border: 1px solid #000;
-    object-fit: contain;
-    margin-bottom: 5px;
-    transition: transform 0.2s;
-  }
-
-  .page {
-    width: 210mm;
-    min-height: 297mm;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2mm;
-    padding: 5mm;
-    box-sizing: border-box;
-    background: #fff;
-    page-break-after: always;
-  }
-
-  .photo {
-    width: 35mm;
-    height: 45mm;
-    border: 1px solid #000;
-    object-fit: contain;
-    transform-origin: center center;
-  }
-
-  @media print {
-    body * {
-      visibility: hidden;
+    #controls {
+        padding: 15px;
+        background: #f2f2f2;
+        border-bottom: 1px solid #ccc;
     }
-    #pageContainer, #pageContainer * {
-      visibility: visible;
+
+    #previewList {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
-    #pageContainer {
-      position: absolute;
-      top: 0;
-      left: 0;
+
+    .previewItem {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 5px;
+        border: 1px solid #ccc;
+        background: #fff;
     }
-  }
+
+    .previewItem img {
+        width: 60px;
+        height: auto;
+        border: 1px solid #aaa;
+    }
+
+    #photoArea {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4mm;
+        padding: 8mm;
+    }
+
+    .photoBox {
+        width: 35mm;
+        height: 25mm;
+        border: 0.5mm solid #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .photoBox img {
+        width: 100%;
+        height: auto;
+    }
+
+    @media print {
+        #controls, #previewList { display: none !important; }
+        body { margin: 0 !important; }
+        #photoArea { padding: 0; gap: 3mm; }
+    }
 </style>
 </head>
+
 <body>
 
-<h1>Passport Photo Print Preview with Rotate</h1>
-
 <div id="controls">
-  <label>Upload Images:</label>
-  <input type="file" id="images" multiple accept="image/*"><br><br>
-  <div id="copiesInputs"></div>
-  <button onclick="generatePages()">Generate Layout</button>
-  <button onclick="window.print()">Print</button>
+    <h3>A4 Multi-Image Photo Generator</h3>
+
+    <!-- SINGLE FILE UPLOAD -->
+    <input type="file" id="singleUpload" accept="image/*" onchange="addPreview()">
+    <p>Upload images one-by-one and set PCS for each.</p>
+
+    <div id="previewList"></div>
+
+    <button onclick="generate()">Generate Photos</button>
+    <button onclick="window.print()">Print</button>
 </div>
 
-<h2>Preview:</h2>
-<div id="preview"></div>
-
-<div id="pageContainer"></div>
+<div id="photoArea"></div>
 
 <script>
-const imagesInput = document.getElementById('images');
-const copiesInputs = document.getElementById('copiesInputs');
-const previewDiv = document.getElementById('preview');
+let images = [];   // store uploaded images + PCS
 
-let imageData = []; // store image src and rotation
+function addPreview() {
+    const fileInput = document.getElementById("singleUpload");
+    const file = fileInput.files[0];
+    if (!file) return;
 
-imagesInput.addEventListener('change', () => {
-    copiesInputs.innerHTML = '';
-    previewDiv.innerHTML = '';
-    imageData = [];
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        const id = images.length; // index
 
-    Array.from(imagesInput.files).forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Save image src and initial rotation
-            imageData.push({ src: e.target.result, rotation: 0 });
+        // Save image + default pcs
+        images.push({ src: e.target.result, pcs: 6 });
 
-            // Preview image
-            const previewItem = document.createElement('div');
-            previewItem.className = 'preview-item';
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.dataset.index = index;
+        // Create preview box
+        const previewBox = document.createElement("div");
+        previewBox.className = "previewItem";
+        previewBox.id = "preview_" + id;
 
-            // Rotate button
-            const rotateBtn = document.createElement('button');
-            rotateBtn.textContent = 'Rotate 90°';
-            rotateBtn.onclick = () => {
-                imageData[index].rotation += 90;
-                img.style.transform = `rotate(${imageData[index].rotation}deg)`;
-            };
+        previewBox.innerHTML = `
+            <img src="${e.target.result}">
+            <div>
+                <strong>${file.name}</strong><br>
+                PCS: 
+                <input type="number" value="6" min="1" 
+                    style="width:60px;" 
+                    onchange="updatePCS(${id}, this.value)">
+            </div>
+        `;
 
-            // Copies input
-            const label = document.createElement('label');
-            label.textContent = 'Copies: ';
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.min = 1;
-            input.value = 1;
-            input.dataset.index = index;
+        document.getElementById("previewList").appendChild(previewBox);
+    };
 
-            previewItem.appendChild(img);
-            previewItem.appendChild(rotateBtn);
-            previewItem.appendChild(label);
-            previewItem.appendChild(input);
-            previewDiv.appendChild(previewItem);
-        };
-        reader.readAsDataURL(file);
-    });
-});
+    reader.readAsDataURL(file);
 
-function generatePages() {
-    const pageContainer = document.getElementById('pageContainer');
-    pageContainer.innerHTML = '';
-
-    const files = imageData;
-    if (files.length === 0) {
-        alert('Please upload at least one image.');
-        return;
-    }
-
-    const copiesArray = Array.from(copiesInputs.querySelectorAll('input')).map(input => parseInt(input.value) || 1);
-
-    let currentPage = createNewPage();
-    pageContainer.appendChild(currentPage);
-    let photosOnPage = 0;
-    const maxPhotosPerRow = Math.floor((210 - 10) / 35);
-    const maxRowsPerPage = Math.floor((297 - 10) / 45);
-    const maxPhotosPerPage = maxPhotosPerRow * maxRowsPerPage;
-
-    files.forEach((file, fileIndex) => {
-        for (let i = 0; i < copiesArray[fileIndex]; i++) {
-            const img = document.createElement('img');
-            img.src = file.src;
-            img.className = 'photo';
-            img.style.transform = `rotate(${file.rotation}deg)`;
-
-            if (photosOnPage >= maxPhotosPerPage) {
-                currentPage = createNewPage();
-                pageContainer.appendChild(currentPage);
-                photosOnPage = 0;
-            }
-
-            currentPage.appendChild(img);
-            photosOnPage++;
-        }
-    });
+    // Reset file input to allow uploading same file again
+    fileInput.value = "";
 }
 
-function createNewPage() {
-    const page = document.createElement('div');
-    page.className = 'page';
-    return page;
+function updatePCS(id, value) {
+    images[id].pcs = parseInt(value);
+}
+
+function generate() {
+    const area = document.getElementById("photoArea");
+    area.innerHTML = "";
+
+    images.forEach(imgData => {
+        for (let i = 0; i < imgData.pcs; i++) {
+            let box = document.createElement("div");
+            box.className = "photoBox";
+
+            let img = document.createElement("img");
+            img.src = imgData.src;
+
+            box.appendChild(img);
+            area.appendChild(box);
+        }
+    });
 }
 </script>
 
