@@ -1,91 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Multi Photo Printing System - A4 Landscape</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>45 Photos on A4</title>
 
-        /* A4 LANDSCAPE: 297mm wide, 210mm high */
-        #printArea {
-            width: 297mm;
-            height: 210mm;
-            padding: 10mm;
-            box-sizing: border-box;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            border: 1px solid #ccc;
-        }
+<style>
+/* ---------- PAGE PRINT SETTINGS ---------- */
+@page {
+    size: A4 portrait;
+    margin: 10mm;
+}
 
-        /* Small image size */
-        .photo {
-            width: 25mm;   /* smaller than passport */
-            height: 30mm;
-            object-fit: cover;
-            border: 1px solid #000;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
 
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printArea, #printArea * {
-                visibility: visible;
-            }
-            #printArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                margin: 0;
-            }
-        }
-    </style>
+/* ---------- GRID CONTAINER ---------- */
+#sheet {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columns */
+    grid-template-rows: repeat(9, auto);     /* 9 rows (total 45 slots) */
+    gap: 5mm;
+}
+
+/* ---------- IMAGE WRAPPER ---------- */
+.photo-slot {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2; /* landscape shape */
+    background: #f0f0f0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ---------- IMAGE SIZE CONTROL ---------- */
+.photo-slot img {
+    width: 30mm;   /* smaller than passport size */
+    height: 20mm;
+    object-fit: cover;
+}
+
+/* Hide controls when printing */
+@media print {
+    #controls {
+        display: none;
+    }
+}
+</style>
 </head>
+
 <body>
 
-<h2>A4 Landscape - Multi Photo Printing</h2>
+<div id="controls" style="padding:10px;">
+    <h2>Print 45 Landscape Photos (Smaller Than Passport)</h2>
+    <input type="file" id="imageInput" multiple accept="image/*" />
+    <button onclick="window.print()">Print</button>
+</div>
 
-<label>Select Multiple Images:</label>
-<input type="file" id="imageInput" accept="image/*" multiple><br><br>
-
-<label>Copies Per Photo:</label>
-<input type="number" id="copyInput" value="1"><br><br>
-
-<button onclick="generatePhotos()">Generate Layout</button>
-<button onclick="window.print()">Print</button>
-
-<hr>
-
-<h3>Preview (A4 Landscape Layout)</h3>
-<div id="printArea"></div>
+<!-- The A4 sheet where the 45 photos will go -->
+<div id="sheet"></div>
 
 <script>
-function generatePhotos() {
-    const files = document.getElementById("imageInput").files;
-    const copies = Number(document.getElementById("copyInput").value);
-    const printArea = document.getElementById("printArea");
+const input = document.getElementById("imageInput");
+const sheet = document.getElementById("sheet");
 
-    if (files.length === 0) {
-        alert("Please select at least one image.");
-        return;
-    }
+input.addEventListener("change", function() {
+    sheet.innerHTML = "";  // clear old images
+    const files = Array.from(this.files);
 
-    printArea.innerHTML = ""; // clear old layout
+    // Limit to 45 images
+    const maxFiles = 45;
+    const selected = files.slice(0, maxFiles);
 
-    Array.from(files).forEach(file => {
-        const imgURL = URL.createObjectURL(file);
+    selected.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement("div");
+            div.className = "photo-slot";
 
-        for (let i = 0; i < copies; i++) {
             const img = document.createElement("img");
-            img.src = imgURL;
-            img.classList.add("photo");
-            printArea.appendChild(img);
-        }
+            img.src = e.target.result;
+
+            div.appendChild(img);
+            sheet.appendChild(div);
+        };
+        reader.readAsDataURL(file);
     });
-}
+
+    // Fill remaining empty slots
+    for (let i = selected.length; i < maxFiles; i++) {
+        const div = document.createElement("div");
+        div.className = "photo-slot";
+        sheet.appendChild(div);
+    }
+});
 </script>
 
 </body>
