@@ -7,10 +7,7 @@
 <style>
     body { margin: 0; padding: 0; font-family: Arial; }
 
-    @page {
-        size: A4 portrait;
-        margin: 8mm;
-    }
+    @page { size: A4 portrait; margin: 8mm; }
 
     #controls {
         padding: 15px;
@@ -18,12 +15,33 @@
         border-bottom: 1px solid #ccc;
     }
 
+    #previewList {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .previewItem {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 5px;
+        border: 1px solid #ccc;
+        background: #fff;
+    }
+
+    .previewItem img {
+        width: 60px;
+        height: auto;
+        border: 1px solid #aaa;
+    }
+
     #photoArea {
         display: flex;
         flex-wrap: wrap;
         gap: 4mm;
         padding: 8mm;
-        box-sizing: border-box;
     }
 
     .photoBox {
@@ -41,12 +59,8 @@
         height: auto;
     }
 
-    .fileItem {
-        margin-bottom: 8px;
-    }
-
     @media print {
-        #controls { display: none !important; }
+        #controls, #previewList { display: none !important; }
         body { margin: 0 !important; }
         #photoArea { padding: 0; gap: 3mm; }
     }
@@ -58,9 +72,11 @@
 <div id="controls">
     <h3>A4 Multi-Image Photo Generator</h3>
 
-    <input type="file" id="inputFiles" multiple accept="image/*" onchange="showInputs()"><br><br>
+    <!-- SINGLE FILE UPLOAD -->
+    <input type="file" id="singleUpload" accept="image/*" onchange="addPreview()">
+    <p>Upload images one-by-one and set PCS for each.</p>
 
-    <div id="copiesInputs"></div>
+    <div id="previewList"></div>
 
     <button onclick="generate()">Generate Photos</button>
     <button onclick="window.print()">Print</button>
@@ -69,45 +85,64 @@
 <div id="photoArea"></div>
 
 <script>
-function showInputs() {
-    const files = document.getElementById("inputFiles").files;
-    const box = document.getElementById("copiesInputs");
-    box.innerHTML = "";
+let images = [];   // store uploaded images + PCS
 
-    Array.from(files).forEach((file, index) => {
-        const div = document.createElement("div");
-        div.className = "fileItem";
-        div.innerHTML = `
-            <strong>${file.name}</strong> 
-            <input type="number" id="pcs_${index}" value="6" min="1" style="width:60px;">
-            pcs
+function addPreview() {
+    const fileInput = document.getElementById("singleUpload");
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        const id = images.length; // index
+
+        // Save image + default pcs
+        images.push({ src: e.target.result, pcs: 6 });
+
+        // Create preview box
+        const previewBox = document.createElement("div");
+        previewBox.className = "previewItem";
+        previewBox.id = "preview_" + id;
+
+        previewBox.innerHTML = `
+            <img src="${e.target.result}">
+            <div>
+                <strong>${file.name}</strong><br>
+                PCS: 
+                <input type="number" value="6" min="1" 
+                    style="width:60px;" 
+                    onchange="updatePCS(${id}, this.value)">
+            </div>
         `;
-        box.appendChild(div);
-    });
+
+        document.getElementById("previewList").appendChild(previewBox);
+    };
+
+    reader.readAsDataURL(file);
+
+    // Reset file input to allow uploading same file again
+    fileInput.value = "";
+}
+
+function updatePCS(id, value) {
+    images[id].pcs = parseInt(value);
 }
 
 function generate() {
-    const files = document.getElementById("inputFiles").files;
-    const output = document.getElementById("photoArea");
-    output.innerHTML = "";
+    const area = document.getElementById("photoArea");
+    area.innerHTML = "";
 
-    Array.from(files).forEach((file, index) => {
-        const pcs = parseInt(document.getElementById("pcs_" + index).value);
+    images.forEach(imgData => {
+        for (let i = 0; i < imgData.pcs; i++) {
+            let box = document.createElement("div");
+            box.className = "photoBox";
 
-        let reader = new FileReader();
-        reader.onload = e => {
-            for (let i = 0; i < pcs; i++) {
-                let box = document.createElement("div");
-                box.className = "photoBox";
+            let img = document.createElement("img");
+            img.src = imgData.src;
 
-                let img = document.createElement("img");
-                img.src = e.target.result;
-
-                box.appendChild(img);
-                output.appendChild(box);
-            }
-        };
-        reader.readAsDataURL(file);
+            box.appendChild(img);
+            area.appendChild(box);
+        }
     });
 }
 </script>
