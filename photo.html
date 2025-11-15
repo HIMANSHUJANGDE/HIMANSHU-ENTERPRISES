@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Printing System</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        #printArea {
+            width: 210mm;         /* A4 width */
+            height: 297mm;        /* A4 height */
+            padding: 10mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .photo {
+            width: 25mm;   /* Smaller than passport (passport = 35x45mm) */
+            height: 30mm;
+            object-fit: cover;
+            border: 1px solid #000;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Small Photo Printing System</h2>
+
+<label>Select Image:</label>
+<input type="file" id="imageInput" accept="image/*"><br><br>
+
+<label>Number of Photos (e.g., 45): </label>
+<input type="number" id="countInput" value="45"><br><br>
+
+<button onclick="generatePhotos()">Generate Photos</button>
+<button onclick="window.print()">Print</button>
+
+<hr>
+
+<h3>Preview (A4 Layout)</h3>
+<div id="printArea"></div>
+
+<script>
+function generatePhotos() {
+    const fileInput = document.getElementById("imageInput").files[0];
+    const count = Number(document.getElementById("countInput").value);
+    const printArea = document.getElementById("printArea");
+
+    if (!fileInput) {
+        alert("Please select an image!");
+        return;
+    }
+
+    printArea.innerHTML = ""; // clear area
+
+    const imgURL = URL.createObjectURL(fileInput);
+
+    for (let i = 0; i < count; i++) {
+        const img = document.createElement("img");
+        img.src = imgURL;
+        img.className = "photo";
+        printArea.appendChild(img);
+    }
+}
+</script>
+
+</body>
+</html>
