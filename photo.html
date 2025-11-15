@@ -1,104 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>45 Photos on A4</title>
+<title>A4 Photo Print – AIO</title>
 
 <style>
-/* ---------- PAGE PRINT SETTINGS ---------- */
+/* ------------------------- A4 PAGE PRINTING ------------------------- */
 @page {
     size: A4 portrait;
     margin: 10mm;
 }
 
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
-/* ---------- GRID CONTAINER ---------- */
-#sheet {
-    width: 100%;
+#controls {
+    margin-bottom: 20px;
+}
+
+@media print {
+    #controls { display: none; }
+}
+
+/* ----------------------- PHOTO GRID LAYOUT -------------------------- */
+#photoSheet {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 columns */
-    grid-template-rows: repeat(9, auto);     /* 9 rows (total 45 slots) */
-    gap: 5mm;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 5px;
 }
 
-/* ---------- IMAGE WRAPPER ---------- */
-.photo-slot {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 3 / 2; /* landscape shape */
-    background: #f0f0f0;
+/* Each photo box (smaller than passport size, landscape) */
+.photoBox {
+    width: 70px;    
+    height: 50px;   
     overflow: hidden;
+    border: 1px solid #999;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* ---------- IMAGE SIZE CONTROL ---------- */
-.photo-slot img {
-    width: 30mm;   /* smaller than passport size */
-    height: 20mm;
-    object-fit: cover;
-}
-
-/* Hide controls when printing */
-@media print {
-    #controls {
-        display: none;
-    }
+.photoBox img {
+    width: 100%;
+    height: auto;
 }
 </style>
 </head>
 
 <body>
 
-<div id="controls" style="padding:10px;">
-    <h2>Print 45 Landscape Photos (Smaller Than Passport)</h2>
-    <input type="file" id="imageInput" multiple accept="image/*" />
+<div id="controls">
+    <h2>A4 Photo Printing – AIO Version</h2>
+
+    <label><b>Select images:</b></label><br>
+    <input id="imageFiles" type="file" accept="image/*" multiple><br><br>
+
+    <label><b>How many copies per image:</b></label><br>
+    <input id="piecesInput" type="number" value="1" min="1" style="width:80px;"><br><br>
+
+    <button onclick="generate()">Generate Layout</button>
     <button onclick="window.print()">Print</button>
 </div>
 
-<!-- The A4 sheet where the 45 photos will go -->
-<div id="sheet"></div>
+<div id="photoSheet"></div>
 
 <script>
-const input = document.getElementById("imageInput");
-const sheet = document.getElementById("sheet");
+function generate() {
+    const files = document.getElementById("imageFiles").files;
+    const pieces = parseInt(document.getElementById("piecesInput").value);
+    const sheet = document.getElementById("photoSheet");
 
-input.addEventListener("change", function() {
-    sheet.innerHTML = "";  // clear old images
-    const files = Array.from(this.files);
+    sheet.innerHTML = ""; // Clear previous layout
 
-    // Limit to 45 images
-    const maxFiles = 45;
-    const selected = files.slice(0, maxFiles);
+    if (!files.length) {
+        alert("Please select images.");
+        return;
+    }
 
-    selected.forEach(file => {
+    Array.from(files).forEach(file => {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement("div");
-            div.className = "photo-slot";
+        reader.onload = event => {
+            for (let i = 0; i < pieces; i++) {
+                const box = document.createElement("div");
+                box.className = "photoBox";
 
-            const img = document.createElement("img");
-            img.src = e.target.result;
+                const img = document.createElement("img");
+                img.src = event.target.result;
 
-            div.appendChild(img);
-            sheet.appendChild(div);
+                box.appendChild(img);
+                sheet.appendChild(box);
+            }
         };
         reader.readAsDataURL(file);
     });
-
-    // Fill remaining empty slots
-    for (let i = selected.length; i < maxFiles; i++) {
-        const div = document.createElement("div");
-        div.className = "photo-slot";
-        sheet.appendChild(div);
-    }
-});
+}
 </script>
 
 </body>
