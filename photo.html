@@ -24,15 +24,15 @@
 
     .previewItem {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         align-items: center;
-        padding: 5px;
+        padding: 8px;
         border: 1px solid #ccc;
         background: #fff;
     }
 
     .previewItem img {
-        width: 60px;
+        width: 70px;
         height: auto;
         border: 1px solid #aaa;
     }
@@ -48,15 +48,16 @@
         width: 35mm;
         height: 25mm;
         border: 0.5mm solid #000;
+        overflow: hidden;
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
     }
 
     .photoBox img {
         width: 100%;
         height: auto;
+        transform-origin: center center;
     }
 
     @media print {
@@ -72,9 +73,8 @@
 <div id="controls">
     <h3>A4 Multi-Image Photo Generator</h3>
 
-    <!-- SINGLE FILE UPLOAD -->
     <input type="file" id="singleUpload" accept="image/*" onchange="addPreview()">
-    <p>Upload images one-by-one and set PCS for each.</p>
+    <p>Upload images one by one. Set PCS and Rotate each image.</p>
 
     <div id="previewList"></div>
 
@@ -85,47 +85,59 @@
 <div id="photoArea"></div>
 
 <script>
-let images = [];   // store uploaded images + PCS
+let images = []; // store {src, pcs, rotate}
 
 function addPreview() {
-    const fileInput = document.getElementById("singleUpload");
-    const file = fileInput.files[0];
+    const input = document.getElementById("singleUpload");
+    const file = input.files[0];
     if (!file) return;
 
     let reader = new FileReader();
-    reader.onload = function(e) {
-        const id = images.length; // index
+    reader.onload = e => {
+        const id = images.length;
+        images.push({ src: e.target.result, pcs: 6, rotate: 0 });
 
-        // Save image + default pcs
-        images.push({ src: e.target.result, pcs: 6 });
+        const item = document.createElement("div");
+        item.className = "previewItem";
+        item.id = "preview_" + id;
 
-        // Create preview box
-        const previewBox = document.createElement("div");
-        previewBox.className = "previewItem";
-        previewBox.id = "preview_" + id;
+        item.innerHTML = `
+            <img src="${e.target.result}" id="prevImg_${id}"
+                 style="transform: rotate(0deg);">
 
-        previewBox.innerHTML = `
-            <img src="${e.target.result}">
             <div>
                 <strong>${file.name}</strong><br>
-                PCS: 
-                <input type="number" value="6" min="1" 
-                    style="width:60px;" 
-                    onchange="updatePCS(${id}, this.value)">
+
+                PCS:
+                <input type="number" min="1" value="6" 
+                       style="width:60px;"
+                       onchange="updatePCS(${id}, this.value)">
+                <br>
+
+                Rotate:
+                <select onchange="updateRotate(${id}, this.value)">
+                    <option value="0">0°</option>
+                    <option value="90">90°</option>
+                    <option value="180">180°</option>
+                    <option value="270">270°</option>
+                </select>
             </div>
         `;
 
-        document.getElementById("previewList").appendChild(previewBox);
+        document.getElementById("previewList").appendChild(item);
     };
 
     reader.readAsDataURL(file);
-
-    // Reset file input to allow uploading same file again
-    fileInput.value = "";
+    input.value = ""; // reset for next upload
 }
 
 function updatePCS(id, value) {
     images[id].pcs = parseInt(value);
+}
+
+function updateRotate(id, value) {
+    images[id].rotate = parseInt(value);
+    document.getElementById("prevImg_" + id).style.transform = `rotate(${value}deg)`;
 }
 
 function generate() {
@@ -139,6 +151,7 @@ function generate() {
 
             let img = document.createElement("img");
             img.src = imgData.src;
+            img.style.transform = `rotate(${imgData.rotate}deg)`;
 
             box.appendChild(img);
             area.appendChild(box);
