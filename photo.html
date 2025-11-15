@@ -41,7 +41,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 4mm;
-        padding: 8mm;
     }
 
     .photoBox {
@@ -60,8 +59,33 @@
         transform-origin: center center;
     }
 
+    /* MODAL FOR CROP TOOL */
+    #cropModal {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #cropBox {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #cropCanvas {
+        border: 1px solid #333;
+        cursor: grab;
+    }
+
     @media print {
-        #controls, #previewList { display: none !important; }
+        #controls, #previewList, #cropModal { display: none !important; }
         body { margin: 0 !important; }
         #photoArea { padding: 0; gap: 3mm; }
     }
@@ -74,7 +98,7 @@
     <h3>A4 Multi-Image Photo Generator</h3>
 
     <input type="file" id="singleUpload" accept="image/*" onchange="addPreview()">
-    <p>Upload images one by one. Set PCS and Rotate each image.</p>
+    <p>Upload images → Crop → Rotate → Set PCS → Generate → Print</p>
 
     <div id="previewList"></div>
 
@@ -82,11 +106,28 @@
     <button onclick="window.print()">Print</button>
 </div>
 
+<!-- PRINT AREA -->
 <div id="photoArea"></div>
 
-<script>
-let images = []; // store {src, pcs, rotate}
+<!-- CROP TOOL MODAL -->
+<div id="cropModal">
+    <div id="cropBox">
+        <h3>Crop Image</h3>
+        <canvas id="cropCanvas" width="400" height="300"></canvas>
 
+        Zoom:
+        <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+
+        <button onclick="applyCrop()">Apply Crop</button>
+        <button onclick="closeCrop()">Cancel</button>
+    </div>
+</div>
+
+<script>
+let images = []; // {src, pcs, rotate, croppedSrc}
+let currentCropIndex = -1;
+
+// -------------------- ADD PREVIEW -------------------------
 function addPreview() {
     const input = document.getElementById("singleUpload");
     const file = input.files[0];
@@ -95,24 +136,27 @@ function addPreview() {
     let reader = new FileReader();
     reader.onload = e => {
         const id = images.length;
-        images.push({ src: e.target.result, pcs: 6, rotate: 0 });
+
+        images.push({
+            src: e.target.result,
+            croppedSrc: e.target.result,
+            pcs: 6,
+            rotate: 0
+        });
 
         const item = document.createElement("div");
         item.className = "previewItem";
         item.id = "preview_" + id;
 
         item.innerHTML = `
-            <img src="${e.target.result}" id="prevImg_${id}"
-                 style="transform: rotate(0deg);">
-
+            <img src="${e.target.result}" id="prevImg_${id}">
             <div>
                 <strong>${file.name}</strong><br>
 
                 PCS:
-                <input type="number" min="1" value="6" 
+                <input type="number" min="1" value="6"
                        style="width:60px;"
-                       onchange="updatePCS(${id}, this.value)">
-                <br>
+                       onchange="updatePCS(${id}, this.value)"><br>
 
                 Rotate:
                 <select onchange="updateRotate(${id}, this.value)">
@@ -120,7 +164,9 @@ function addPreview() {
                     <option value="90">90°</option>
                     <option value="180">180°</option>
                     <option value="270">270°</option>
-                </select>
+                </select><br>
+
+                <button onclick="openCrop(${id})">Crop</button>
             </div>
         `;
 
@@ -128,18 +174,89 @@ function addPreview() {
     };
 
     reader.readAsDataURL(file);
-    input.value = ""; // reset for next upload
+    input.value = "";
 }
 
+// -------------------- UPDATE PCS -------------------------
 function updatePCS(id, value) {
     images[id].pcs = parseInt(value);
 }
 
+// -------------------- UPDATE ROTATE -------------------------
 function updateRotate(id, value) {
     images[id].rotate = parseInt(value);
     document.getElementById("prevImg_" + id).style.transform = `rotate(${value}deg)`;
 }
 
+// -------------------- CROP TOOL -------------------------
+let cropImg = new Image();
+let ctx = null;
+let offsetX = 0, offsetY = 0;
+let drag = false;
+let zoom = 1;
+
+function openCrop(index) {
+    currentCropIndex = index;
+    cropImg.src = images[index].src;
+
+    const canvas = document.getElementById("cropCanvas");
+    ctx = canvas.getContext("2d");
+
+    offsetX = 0;
+    offsetY = 0;
+    zoom = 1;
+
+    document.getElementById("zoomSlider").value = 1;
+
+    cropImg.onload = () => drawCrop();
+
+    document.getElementById("cropModal").style.display = "flex";
+
+    // Mouse drag
+    canvas.onmousedown = e => { drag = true; };
+    canvas.onmouseup = e => { drag = false; };
+    canvas.onmousemove = e => {
+        if (drag) {
+            offsetX += e.movementX;
+            offsetY += e.movementY;
+            drawCrop();
+        }
+    };
+}
+
+function drawCrop() {
+    const canvas = document.getElementById("cropCanvas");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.drawImage(
+        cropImg,
+        offsetX, offsetY,
+        cropImg.width * zoom,
+        cropImg.height * zoom
+    );
+}
+
+document.getElementById("zoomSlider").oninput = function() {
+    zoom = parseFloat(this.value);
+    drawCrop();
+};
+
+function applyCrop() {
+    const canvas = document.getElementById("cropCanvas");
+    let croppedData = canvas.toDataURL("image/jpeg", 1.0);
+
+    images[currentCropIndex].croppedSrc = croppedData;
+    document.getElementById("prevImg_" + currentCropIndex).src = croppedData;
+
+    closeCrop();
+}
+
+function closeCrop() {
+    document.getElementById("cropModal").style.display = "none";
+}
+
+
+// -------------------- GENERATE PRINT PAGE -------------------------
 function generate() {
     const area = document.getElementById("photoArea");
     area.innerHTML = "";
@@ -150,7 +267,7 @@ function generate() {
             box.className = "photoBox";
 
             let img = document.createElement("img");
-            img.src = imgData.src;
+            img.src = imgData.croppedSrc;
             img.style.transform = `rotate(${imgData.rotate}deg)`;
 
             box.appendChild(img);
