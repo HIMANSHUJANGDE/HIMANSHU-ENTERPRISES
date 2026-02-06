@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>E-Commerce Catalog</title>
+<title>Indian E-Commerce Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,15 +10,13 @@
   body { margin: 0; background: #f3f4f6; }
 
   header {
-    background: #111827;
+    background: #0f172a;
     color: white;
     padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-
-  header h1 { margin: 0; }
 
   header button {
     background: #2563eb;
@@ -63,8 +61,11 @@
     flex: 1;
   }
 
-  .card h3 { margin: 0 0 0.5rem; }
-  .price { font-weight: bold; margin-top: auto; color: #2563eb; }
+  .price {
+    font-weight: bold;
+    margin-top: auto;
+    color: #16a34a;
+  }
 
   .card button {
     margin-top: 0.75rem;
@@ -79,9 +80,9 @@
   /* CART */
   .cart {
     position: fixed;
-    right: -400px;
+    right: -420px;
     top: 0;
-    width: 400px;
+    width: 420px;
     height: 100%;
     background: white;
     box-shadow: -5px 0 15px rgba(0,0,0,0.15);
@@ -94,8 +95,6 @@
 
   .cart.open { right: 0; }
 
-  .cart h2 { margin-top: 0; }
-
   .cart-items {
     flex: 1;
     overflow-y: auto;
@@ -105,17 +104,22 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.75rem;
+    font-size: 0.9rem;
   }
-
-  .cart-item span { font-size: 0.9rem; }
 
   .cart-item button {
     border: none;
-    background: #ef4444;
+    background: #dc2626;
     color: white;
     border-radius: 4px;
     cursor: pointer;
     padding: 0 6px;
+  }
+
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
   }
 
   .totals {
@@ -135,7 +139,7 @@
     cursor: pointer;
   }
 
-  /* CHECKOUT MODAL */
+  /* MODAL */
   .modal {
     position: fixed;
     inset: 0;
@@ -159,18 +163,12 @@
     padding: 0.5rem;
     margin-bottom: 0.75rem;
   }
-
-  footer {
-    text-align: center;
-    padding: 1rem;
-    color: #666;
-  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🛍️ My Store</h1>
+  <h2>🛍️ Bharat Store</h2>
   <button onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</button>
 </header>
 
@@ -178,17 +176,24 @@
   <div class="catalog" id="catalog"></div>
 </main>
 
-<footer>© 2026 My Store</footer>
-
 <!-- CART -->
 <div class="cart" id="cart">
   <h2>Your Cart</h2>
+
   <div class="cart-items" id="cartItems"></div>
 
+  <label><strong>Shipping</strong></label>
+  <select id="shipping" onchange="renderCart()">
+    <option value="99">Standard (5–7 days) – ₹99</option>
+    <option value="199">Express (2–3 days) – ₹199</option>
+    <option value="299">Same Day (Metro) – ₹299</option>
+  </select>
+
   <div class="totals">
-    <div>Subtotal: $<span id="subtotal">0.00</span></div>
-    <div>Tax (10%): $<span id="tax">0.00</span></div>
-    <strong>Total: $<span id="total">0.00</span></strong>
+    <div>Subtotal: ₹<span id="subtotal">0</span></div>
+    <div>GST (18%): ₹<span id="tax">0</span></div>
+    <div>Shipping: ₹<span id="shippingCost">0</span></div>
+    <strong>Total: ₹<span id="total">0</span></strong>
   </div>
 
   <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
@@ -199,45 +204,40 @@
   <div class="modal-content">
     <h3>Checkout</h3>
     <input placeholder="Full Name">
-    <input placeholder="Email">
-    <input placeholder="Address">
-    <input placeholder="Card Number">
+    <input placeholder="Phone Number">
+    <input placeholder="Shipping Address">
+    <input placeholder="UPI / Card Number">
     <button class="checkout-btn" onclick="completeOrder()">Place Order</button>
   </div>
 </div>
 
 <script>
   const products = [
-    { id: 1, name: "Wireless Headphones", price: 99.99, image: "https://picsum.photos/400/300?1" },
-    { id: 2, name: "Smart Watch", price: 149.99, image: "https://picsum.photos/400/300?2" },
-    { id: 3, name: "T-Shirt", price: 19.99, image: "https://picsum.photos/400/300?3" },
-    { id: 4, name: "Coffee Maker", price: 79.99, image: "https://picsum.photos/400/300?4" }
+    { id: 1, name: "Wireless Headphones", price: 7999, image: "https://picsum.photos/400/300?1" },
+    { id: 2, name: "Smart Watch", price: 12999, image: "https://picsum.photos/400/300?2" },
+    { id: 3, name: "Cotton T-Shirt", price: 999, image: "https://picsum.photos/400/300?3" },
+    { id: 4, name: "Coffee Maker", price: 4599, image: "https://picsum.photos/400/300?4" }
   ];
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  const catalog = document.getElementById("catalog");
-  const cartEl = document.getElementById("cart");
-
   function renderProducts() {
-    catalog.innerHTML = "";
-    products.forEach(p => {
-      catalog.innerHTML += `
+    document.getElementById("catalog").innerHTML =
+      products.map(p => `
         <div class="card">
           <img src="${p.image}">
           <div class="card-content">
             <h3>${p.name}</h3>
-            <div class="price">$${p.price.toFixed(2)}</div>
+            <div class="price">₹${p.price}</div>
             <button onclick="addToCart(${p.id})">Add to Cart</button>
           </div>
-        </div>`;
-    });
+        </div>
+      `).join("");
   }
 
   function addToCart(id) {
     const item = cart.find(i => i.id === id);
-    if (item) item.qty++;
-    else cart.push({ ...products.find(p => p.id === id), qty: 1 });
+    item ? item.qty++ : cart.push({ ...products.find(p => p.id === id), qty: 1 });
     saveCart();
   }
 
@@ -252,38 +252,37 @@
   }
 
   function renderCart() {
-    const cartItems = document.getElementById("cartItems");
-    cartItems.innerHTML = "";
+    const items = document.getElementById("cartItems");
+    items.innerHTML = "";
 
     let subtotal = 0;
-
     cart.forEach(i => {
       subtotal += i.price * i.qty;
-      cartItems.innerHTML += `
+      items.innerHTML += `
         <div class="cart-item">
           <span>${i.name} x${i.qty}</span>
-          <span>
-            $${(i.price * i.qty).toFixed(2)}
-            <button onclick="removeItem(${i.id})">×</button>
-          </span>
+          <span>₹${i.price * i.qty}
+          <button onclick="removeItem(${i.id})">×</button></span>
         </div>`;
     });
 
-    const tax = subtotal * 0.1;
-    const total = subtotal + tax;
+    const gst = subtotal * 0.18;
+    const shipping = Number(document.getElementById("shipping").value);
+    const total = subtotal + gst + shipping;
 
-    document.getElementById("subtotal").textContent = subtotal.toFixed(2);
-    document.getElementById("tax").textContent = tax.toFixed(2);
-    document.getElementById("total").textContent = total.toFixed(2);
+    document.getElementById("subtotal").textContent = subtotal.toFixed(0);
+    document.getElementById("tax").textContent = gst.toFixed(0);
+    document.getElementById("shippingCost").textContent = shipping;
+    document.getElementById("total").textContent = total.toFixed(0);
     document.getElementById("cartCount").textContent = cart.reduce((a,b)=>a+b.qty,0);
   }
 
   function toggleCart() {
-    cartEl.classList.toggle("open");
+    document.getElementById("cart").classList.toggle("open");
   }
 
   function openCheckout() {
-    if (!cart.length) return alert("Cart is empty");
+    if (!cart.length) return alert("Your cart is empty");
     document.getElementById("checkoutModal").style.display = "flex";
   }
 
@@ -292,7 +291,7 @@
     cart = [];
     saveCart();
     document.getElementById("checkoutModal").style.display = "none";
-    cartEl.classList.remove("open");
+    toggleCart();
   }
 
   renderProducts();
