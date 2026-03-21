@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Software Store</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #121212;
+  color: white;
+}
+
+header {
+  padding: 15px;
+  text-align: center;
+  background: #1f1f1f;
+}
+
+input, button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  border: none;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  background: #1e1e1e;
+  margin: 15px;
+  padding: 15px;
+  width: 250px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+button {
+  background: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #218838;
+}
+
+.admin-panel {
+  display: none;
+  background: #222;
+  padding: 15px;
+  text-align: center;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>Software Store</h1>
+  <input type="text" id="search" placeholder="Search...">
+  <button onclick="showAdmin()">Admin</button>
+</header>
+
+<div class="admin-panel" id="adminPanel">
+  <h2>Admin Panel</h2>
+  <input type="password" id="adminPass" placeholder="Enter Password">
+  <br>
+  <button onclick="login()">Login</button>
+
+  <div id="uploadSection" style="display:none;">
+    <input id="name" placeholder="Software Name"><br>
+    <input id="desc" placeholder="Description"><br>
+    <input id="link" placeholder="Download Link (Drive etc)"><br>
+    <button onclick="addSoftware()">Add Software</button>
+  </div>
+</div>
+
+<div class="container" id="softwareList"></div>
+
+<script>
+let softwareData = JSON.parse(localStorage.getItem("software")) || [
+  {name:"Chrome", desc:"Browser", link:"https://google.com/chrome", downloads:0}
+];
+
+function saveData() {
+  localStorage.setItem("software", JSON.stringify(softwareData));
+}
+
+function display(list) {
+  const container = document.getElementById("softwareList");
+  container.innerHTML = "";
+
+  list.forEach((s, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${s.name}</h3>
+      <p>${s.desc}</p>
+      <p>⬇ Downloads: ${s.downloads}</p>
+      <button onclick="download(${index})">Download</button>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function download(i) {
+  softwareData[i].downloads++;
+  saveData();
+  display(softwareData);
+  window.open(softwareData[i].link, "_blank");
+}
+
+function addSoftware() {
+  const name = document.getElementById("name").value;
+  const desc = document.getElementById("desc").value;
+  const link = document.getElementById("link").value;
+
+  softwareData.push({name, desc, link, downloads:0});
+  saveData();
+  display(softwareData);
+
+  alert("Added!");
+}
+
+function showAdmin() {
+  document.getElementById("adminPanel").style.display = "block";
+}
+
+function login() {
+  const pass = document.getElementById("adminPass").value;
+
+  if(pass === "1234") {
+    document.getElementById("uploadSection").style.display = "block";
+  } else {
+    alert("Wrong password");
+  }
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const val = this.value.toLowerCase();
+  const filtered = softwareData.filter(s => s.name.toLowerCase().includes(val));
+  display(filtered);
+});
+
+display(softwareData);
+</script>
+
+</body>
+</html>
