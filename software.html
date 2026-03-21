@@ -57,6 +57,13 @@ button:hover {
   padding: 15px;
   text-align: center;
 }
+
+.admin-item {
+  margin: 10px;
+  padding: 10px;
+  background: #333;
+  border-radius: 5px;
+}
 </style>
 
 </head>
@@ -70,15 +77,20 @@ button:hover {
 
 <div class="admin-panel" id="adminPanel">
   <h2>Admin Panel</h2>
+
   <input type="password" id="adminPass" placeholder="Enter Password">
   <br>
   <button onclick="login()">Login</button>
 
   <div id="uploadSection" style="display:none;">
+    <h3>Add Software</h3>
     <input id="name" placeholder="Software Name"><br>
     <input id="desc" placeholder="Description"><br>
-    <input id="link" placeholder="Download Link (Drive etc)"><br>
-    <button onclick="addSoftware()">Add Software</button>
+    <input id="link" placeholder="Download Link"><br>
+    <button onclick="addSoftware()">Add</button>
+
+    <h3>Manage Software</h3>
+    <div id="adminList"></div>
   </div>
 </div>
 
@@ -93,6 +105,7 @@ function saveData() {
   localStorage.setItem("software", JSON.stringify(softwareData));
 }
 
+// USER VIEW
 function display(list) {
   const container = document.getElementById("softwareList");
   container.innerHTML = "";
@@ -112,6 +125,22 @@ function display(list) {
   });
 }
 
+// ADMIN LIST
+function displayAdminList() {
+  const adminDiv = document.getElementById("adminList");
+  adminDiv.innerHTML = "";
+
+  softwareData.forEach((s, index) => {
+    adminDiv.innerHTML += `
+      <div class="admin-item">
+        ${s.name}
+        <button onclick="removeSoftware(${index})" style="background:red; float:right;">Delete</button>
+      </div>
+    `;
+  });
+}
+
+// DOWNLOAD
 function download(i) {
   softwareData[i].downloads++;
   saveData();
@@ -119,18 +148,38 @@ function download(i) {
   window.open(softwareData[i].link, "_blank");
 }
 
+// ADD
 function addSoftware() {
   const name = document.getElementById("name").value;
   const desc = document.getElementById("desc").value;
   const link = document.getElementById("link").value;
 
+  if(!name || !link) {
+    alert("Enter required fields!");
+    return;
+  }
+
   softwareData.push({name, desc, link, downloads:0});
   saveData();
-  display(softwareData);
 
-  alert("Added!");
+  display(softwareData);
+  displayAdminList();
+
+  alert("Software Added!");
 }
 
+// REMOVE
+function removeSoftware(index) {
+  if(confirm("Delete this software?")) {
+    softwareData.splice(index, 1);
+    saveData();
+
+    display(softwareData);
+    displayAdminList();
+  }
+}
+
+// ADMIN LOGIN
 function showAdmin() {
   document.getElementById("adminPanel").style.display = "block";
 }
@@ -140,17 +189,20 @@ function login() {
 
   if(pass === "1234") {
     document.getElementById("uploadSection").style.display = "block";
+    displayAdminList();
   } else {
     alert("Wrong password");
   }
 }
 
+// SEARCH
 document.getElementById("search").addEventListener("input", function() {
   const val = this.value.toLowerCase();
   const filtered = softwareData.filter(s => s.name.toLowerCase().includes(val));
   display(filtered);
 });
 
+// INIT
 display(softwareData);
 </script>
 
